@@ -1,7 +1,11 @@
 const validRecipeTds = value => Number.isFinite(value) && value >= 0 && value <= 100;
 const recipeMemoText = value => typeof value === 'string' ? value.slice(0, 300) : '';
 const RecipeLink = (() => {
-  const root = 'https://leeu-brew-ratio.ovoidhazel2.chatgpt.site/';
+  // 공유 링크는 지금 배포 중인 GitHub Pages 주소로 만듭니다.
+  // 예전 Sites 주소(leeu-brew-ratio.ovoidhazel2.chatgpt.site) 링크도 계속 받아 줍니다.
+  const roots = ['https://factory402-sketch.github.io/', 'https://leeu-brew-ratio.ovoidhazel2.chatgpt.site/'];
+  const root = roots[0];
+  const rootOf = url => url.origin + (url.pathname === '/index.html' ? '/' : url.pathname);
   function make(recipe) {
     const data = {v:1, name:recipe.name, values:recipe.values};
     if (recipeMemoText(recipe.memo)) data.memo = recipeMemoText(recipe.memo);
@@ -15,7 +19,7 @@ const RecipeLink = (() => {
   function parse(input) {
     if (input.length > 12000) throw Error('length');
     const url = new URL(input.trim());
-    if (url.origin + url.pathname !== root || !url.hash.startsWith('#recipe=')) throw Error('link');
+    if (!roots.includes(rootOf(url)) && rootOf(url) !== location.origin + '/' || !url.hash.startsWith('#recipe=')) throw Error('link');
     const record = JSON.parse(decodeURIComponent(url.hash.slice(8)));
     if (record.v !== 1 || typeof record.name !== 'string' || !record.name.trim() || record.name.length > 512) throw Error('recipe');
     const temperatures = record.temperatures ? PourTemperatures.normalize(record.temperatures, record.values?.[2]) : [];
