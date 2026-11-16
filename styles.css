@@ -284,6 +284,75 @@ main header .icon:hover { border-color: var(--gold-light); color: var(--green); 
   box-shadow: 0 8px 16px -12px rgba(18, 54, 45, 1), inset 0 1px 0 rgba(255, 255, 255, .16);
 }
 
+/* 6-1. 푸어 횟수 바로 설정 (모드 탭 옆) ---------------------------------- */
+.mode-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mode-bar .tabs { flex: 1 1 auto; min-width: 0; }
+
+.pour-count {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 5px 0 8px;
+  border: 1px solid #e3ddcd;
+  border-radius: var(--radius-m);
+  background: linear-gradient(180deg, #fffef9 0%, #fbf9f1 100%);
+  box-shadow: inset 0 1px 3px rgba(38, 58, 46, .05);
+  white-space: nowrap;
+}
+
+.pour-count-label {
+  margin-inline-end: 3px;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: .01em;
+  color: #5d7267;
+}
+
+.pour-count button {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border: 1px solid #e3ddcd;
+  border-radius: 9px;
+  background: #fffef9;
+  color: #5d7267;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pour-count button:hover:not(:disabled) { border-color: #d3c6ac; background: #eeeade; color: var(--green); }
+
+.pour-count button:disabled { opacity: .4; }
+
+.pour-count #pourCountValue {
+  min-width: 23px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+  color: var(--green);
+}
+
+/* 좀은 기기(≤380px)에서는 탭 글자가 줄바꿈되지 않도록 스테퍼만 더 조입니다. */
+@media (max-width: 380px) {
+  .mode-bar { gap: 6px; }
+  .pour-count { gap: 2px; padding: 0 4px 0 6px; }
+  .pour-count-label { margin-inline-end: 1px; font-size: 9px; }
+  .pour-count button { width: 25px; height: 25px; font-size: 14px; }
+  .pour-count #pourCountValue { min-width: 20px; font-size: 12px; }
+}
+
 /* 7. 입력 카드 ----------------------------------------------------------- */
 section.fields {
   position: relative;
@@ -1908,6 +1977,7 @@ dialog .fields::before { display: none; }
     gap: 7px;
   }
   .main-top { grid-area: top; }
+  .mode-bar { grid-area: tabs; }
   .tabs { grid-area: tabs; }
   main > section.fields { grid-area: fields; padding: 10px 12px; }
   .result { grid-area: result; grid-template-columns: minmax(0, 1fr); }

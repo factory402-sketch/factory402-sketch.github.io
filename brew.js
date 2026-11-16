@@ -40,7 +40,7 @@ function showPour(amount, temperature) {
   temp.hidden = temperature == null;
   temp.textContent = temperature == null ? '' : '물 온도 ' + fmt(temperature) + ' °C';
 }
-function lock(on){document.querySelectorAll('.fields input:not(#sound):not(#voice),.fields select,.fields .presets button,.tabs button').forEach(n=>n.disabled=on);}
+function lock(on){document.querySelectorAll('.fields input:not(#sound):not(#voice),.fields select,.fields .presets button,.tabs button,.pour-count button').forEach(n=>n.disabled=on);}
 function build(){if(status!=='idle')return;const c=Number(el('coffee').value),v=Number(el('second').value),r=calculate(c,v,mode);const n=Number(el('pourCount').value),b=Number(el('bloom').value),i=Number(el('interval').value),d=Number(el('drain').value);const total=mode==='ratio'?v:c*v;
 const amounts=typeof PourAmounts === 'undefined' ? [] : PourAmounts.read();
 const resolved=typeof PourAmounts === 'undefined' ? [] : PourAmounts.resolve(total,amounts);

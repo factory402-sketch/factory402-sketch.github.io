@@ -43,7 +43,7 @@
             <path d="M4 21h13"/>
           </svg>
         </span>
-        <div class="logo">cafe.leeu <span>추출 도우미</span><small class="release-version">2026.11.16 v2.06</small></div>
+        <div class="logo">cafe.leeu <span>추출 도우미</span><small class="release-version">2026.11.17 v2.07</small></div>
       </div>
       <div class="header-actions">
         <button class="icon install-entry" data-open="installDialog" aria-label="앱 설치 안내">
@@ -77,10 +77,18 @@
     </div>
   </div>
 
-  <!-- 계산 모드 -->
-  <div class="tabs" role="tablist" aria-label="계산 방식">
-    <button role="tab" aria-selected="true" id="ratioTab">추출 비율 계산</button>
-    <button role="tab" aria-selected="false" id="waterTab">필요한 물 계산</button>
+  <!-- 계산 모드 · 푸어 횟수 바로 설정 -->
+  <div class="mode-bar">
+    <div class="tabs" role="tablist" aria-label="계산 방식">
+      <button role="tab" aria-selected="true" id="ratioTab">추출 비율 계산</button>
+      <button role="tab" aria-selected="false" id="waterTab">필요한 물 계산</button>
+    </div>
+    <div class="pour-count" role="group" aria-label="푸어 횟수 바로 설정">
+      <span class="pour-count-label" aria-hidden="true">푸어</span>
+      <button type="button" id="pourCountMinus" aria-label="푸어 횟수 줄이기">−</button>
+      <output id="pourCountValue" for="pourCount" aria-live="polite">5회</output>
+      <button type="button" id="pourCountPlus" aria-label="푸어 횟수 늘리기">+</button>
+    </div>
   </div>
 
   <!-- 입력 -->
@@ -502,6 +510,7 @@
 <script src="./pour-temperatures.js"></script>
 <script src="./pour-amounts.js"></script>
 <script src="./brew.js"></script>
+<script src="./pour-count.js"></script>
 <script src="./vendor/qr-encoder.js"></script>
 <script src="./recipe-link.js"></script>
 <script src="./label-qr.js"></script>
