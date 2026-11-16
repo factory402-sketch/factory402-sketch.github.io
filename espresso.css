@@ -22,6 +22,17 @@
   --gold: #C87A44;
   --gold-light: #E4B489;
   --gold-tint: #FBEEE2;
+  /* 푸어 횟수 스테퍼 포인트 — 로스트 앰버 → 테라코타 (v3.0) */
+  --pour-1: #CD7F3E;
+  --pour-2: #9C481D;
+  --pour-edge: #83390F;
+  --pour-label: #FFE4C1;
+  --pour-value: #FFFCF4;
+  --pour-key: #FFF3E1;
+  --pour-key-ink: #8A3F14;
+  --pour-key-hover: #FFFFFF;
+  --pour-key-hover-ink: #63290B;
+  --pour-glow: rgba(140, 62, 18, .42);
   --ink: #2B1D17;
   --ink-soft: #4C3A2F;
   --muted: #8A7565;
@@ -428,17 +439,36 @@ a { color: var(--green); }
 }
 
 /* 5-1. 푸어 횟수 바로 설정 ---------------------------------------------- */
+/* 크림 배경에 묻히지 않도록 로스트 앰버→테라코타 포인트로 채운다.
+   크기·여백·테두리 두께는 v2.08 값 그대로 두어 한 화면 레이아웃에 영향이 없다. */
 .pour-count {
-  border-color: var(--line);
-  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-3) 100%);
-  box-shadow: inset 0 1px 3px rgba(20, 24, 22, .05);
+  border-color: var(--pour-edge);
+  background: linear-gradient(180deg, var(--pour-1) 0%, var(--pour-2) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 240, 220, .32), 0 6px 12px -8px var(--pour-glow);
 }
 
-.pour-count-label { color: var(--muted); }
+.pour-count-label { color: var(--pour-label); font-weight: 700; }
 
-.pour-count button { color: var(--ink-soft); border-color: var(--line-strong); background: var(--surface); }
-.pour-count button:hover:not(:disabled) { border-color: var(--gold-light); background: var(--green-tint); color: var(--green); }
-.pour-count #pourCountValue { color: var(--green); }
+.pour-count button {
+  color: var(--pour-key-ink);
+  border-color: rgba(255, 245, 231, .55);
+  background: var(--pour-key);
+  box-shadow: 0 1px 2px rgba(92, 42, 12, .22);
+}
+.pour-count button:hover:not(:disabled) {
+  border-color: #fff;
+  background: var(--pour-key-hover);
+  color: var(--pour-key-hover-ink);
+}
+.pour-count button:disabled {
+  opacity: 1;
+  border-color: rgba(255, 245, 231, .28);
+  background: rgba(255, 243, 225, .40);
+  color: rgba(255, 247, 234, .62);
+  box-shadow: none;
+}
+.pour-count button:focus-visible { outline-color: var(--pour-key); }
+.pour-count #pourCountValue { color: var(--pour-value); text-shadow: 0 1px 1px rgba(96, 40, 10, .45); }
 
 /* 6. 입력 카드 ----------------------------------------------------------- */
 section.fields {
