@@ -61,7 +61,7 @@
   /* 원두 · 물 입력 ------------------------------------------------------- */
   section.fields { padding: 9px 13px 8px; gap: 6px 12px; }
   .label { font-size: 11px; }
-  .label-code { font-size: 8px; }
+  .label-code { font-size: 8.5px; }
   .inputwrap input { font-size: clamp(23px, 3.1dvh, 30px); padding: 1px 0 3px; }
   .unit { font-size: 12px; }
   /* 좁은 기기에서도 프리셋은 한 줄(4칸)로 유지해 세로 길이를 아낀다. */
