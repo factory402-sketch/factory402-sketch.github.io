@@ -44,6 +44,7 @@
   --dial-current: #F4D0A6;
   --dial-glow: rgba(244, 208, 166, .55);
   --backdrop: rgba(36, 21, 17, .55);
+  --qr-ink: #241511;
   --glow-1: #FFFBF6;
   --glow-2: #F4E9DD;
   --radius-xl: 24px;
@@ -53,6 +54,314 @@
   --shadow-card: 0 1px 2px rgba(58, 38, 30, .05), 0 16px 30px -24px rgba(58, 38, 30, .55);
   --shadow-deep: 0 22px 40px -26px rgba(36, 21, 17, .95), inset 0 1px 0 rgba(255, 255, 255, .10);
 }
+/* 옛 초록 잔재 스윕 — styles.css가 hex로 남겨 둔 다이얼로그·부속 표면을 토큰으로 재도색 */
+.brand-mark {
+  background: linear-gradient(158deg, var(--green) 0%, var(--green) 55%, var(--green) 100%);
+}
+
+.shop-entry {
+  border: 1px solid var(--line-strong);
+  background: linear-gradient(160deg, var(--green) 0%, var(--green) 60%, var(--green) 100%);
+}
+
+.tabs button {
+  color: var(--ink-soft);
+}
+
+.tabs button[aria-selected="true"] {
+  background: linear-gradient(180deg, var(--green) 0%, var(--green) 100%);
+}
+
+.inputwrap input {
+  color: var(--green);
+}
+
+#second[readonly] {
+  color: var(--ink-soft);
+}
+
+.presets button.active, .presets button[aria-pressed="true"] {
+  background: linear-gradient(180deg, var(--green), var(--green));
+}
+
+#shareCurrent {
+  border-color: var(--line);
+  background: linear-gradient(180deg, var(--green-tint), var(--green-tint));
+}
+
+.current-share-result {
+  color: var(--ink-soft);
+}
+
+.timer {
+  background: radial-gradient(120% 90% at 88% -15%, rgba(196, 155, 85, .26), rgba(196, 155, 85, 0) 58%),
+    radial-gradient(90% 80% at -10% 110%, rgba(104, 152, 128, .32), rgba(104, 152, 128, 0) 62%),
+    linear-gradient(158deg, var(--green) 0%, var(--green) 42%, var(--green) 100%);
+}
+
+.timerhead {
+  color: var(--on-deep);
+}
+
+#brewRound {
+  color: var(--on-deep);
+}
+
+.next {
+  color: var(--on-deep);
+}
+
+.timer-actions button {
+  color: var(--on-deep);
+}
+
+.bottom button[data-open="favoritesDialog"] {
+  border-color: var(--line);
+  background: linear-gradient(180deg, var(--green-tint) 0%, var(--green-tint) 100%);
+}
+
+.bottom button[data-open="favoritesDialog"] .button-icon {
+  background: var(--green-tint);
+}
+
+.recipe-search-bar input {
+  color: var(--green);
+}
+
+.recipe-search-bar button {
+  background: linear-gradient(180deg, var(--green), var(--green));
+}
+
+#recipeSearchResults p {
+  color: var(--ink-soft);
+}
+
+#recipeSearchResults button {
+  border: 1px solid var(--line);
+  background: var(--green-tint);
+}
+
+.dialoghead button {
+  color: var(--ink-soft);
+}
+
+.settings input, .settings select {
+  color: var(--green);
+}
+
+.recipe-memo-field > label, .memo-form label {
+  color: var(--ink-soft);
+}
+
+.recipe-memo-field textarea, .memo-form textarea {
+  color: var(--green);
+}
+
+.recipe-memo-field textarea:focus, .memo-form textarea:focus {
+  outline: 2px solid var(--gold);
+}
+
+.recipe-memo-footer button, .memo-form button {
+  border: 1px solid var(--line);
+  background: var(--green-tint);
+  color: var(--green);
+}
+
+#brewMemoForm label {
+  color: var(--ink-soft);
+}
+
+#brewMemoSave {
+  background: linear-gradient(180deg, var(--green), var(--green));
+}
+
+.recipe-summary {
+  background: var(--green-tint);
+  color: var(--ink-soft);
+}
+
+#recipe li {
+  color: var(--green);
+}
+
+#recipe li.active {
+  border-color: var(--line-strong);
+}
+
+#recipe time, #recipe li small {
+  color: var(--ink-soft);
+}
+
+.recipe-memo-text {
+  background: var(--green-tint);
+  color: var(--ink-soft);
+}
+
+.sound {
+  color: var(--ink-soft);
+}
+
+.copy {
+  background: linear-gradient(180deg, var(--green), var(--green));
+}
+
+#audioStatus {
+  color: var(--ink-soft);
+}
+
+.shopbar {
+  background: var(--green-tint);
+  color: var(--ink-soft);
+}
+
+.store-link {
+  background: linear-gradient(180deg, var(--green), var(--green));
+}
+
+.store-options button {
+  border: 1px solid var(--line);
+  background: var(--green-tint);
+  color: var(--green);
+}
+
+#storeStatus {
+  color: var(--ink-soft);
+}
+
+.ad-contact {
+  color: var(--ink-soft);
+}
+
+.install-platform li, .install-platform p {
+  color: var(--ink-soft);
+}
+
+.news-filters button {
+  color: var(--ink-soft);
+}
+
+.news-post summary::after {
+  color: var(--muted);
+}
+
+.news-post strong {
+  color: var(--green);
+}
+
+.news-body p {
+  color: var(--ink-soft);
+}
+
+.news-footer button {
+  border: 1px solid var(--line);
+  background: var(--green-tint);
+  color: var(--ink-soft);
+}
+
+.import-box summary {
+  color: var(--ink-soft);
+}
+
+#shareFeedback {
+  color: var(--ink-soft);
+}
+
+.received {
+  background: var(--green-tint);
+}
+
+#favoritesDialog h3 {
+  color: var(--ink-soft);
+}
+
+#favoritesDialog article p, #recipeStatus, #savedRecipes, #storeStatus {
+  color: var(--ink-soft);
+}
+
+#favoritesDialog article button, #saveRecipe button, .store-options button {
+  border: 1px solid var(--line);
+  background: var(--green-tint);
+  color: var(--ink-soft);
+}
+
+#saveRecipe > label {
+  color: var(--ink-soft);
+}
+
+.rename-form label, .rename-form span {
+  color: var(--ink-soft);
+}
+
+.rename-form button {
+  border: 1px solid var(--line);
+  background: var(--green-tint);
+  color: var(--ink-soft);
+}
+
+#beanLabel {
+  color: var(--green);
+}
+
+#beanLabel span {
+  color: var(--ink-soft);
+}
+
+#qrSendStatus {
+  color: var(--ink-soft);
+}
+
+#grindDialog summary {
+  color: var(--ink-soft);
+}
+
+.grind-field {
+  color: var(--ink-soft);
+}
+
+.grind-box, #grindResult {
+  background: var(--green-tint);
+  color: var(--ink-soft);
+}
+
+.grind-actions button {
+  background: var(--green-tint);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+
+#grindResult h3 {
+  color: var(--ink-soft);
+}
+
+#grindSpread, #grindComparison {
+  color: var(--ink-soft);
+}
+
+.grind-check {
+  color: var(--ink-soft);
+}
+
+#grindStatus {
+  color: var(--ink-soft);
+}
+
+.guide-stage {
+  background: var(--green);
+}
+
+#guideLive[data-state="ready"] .guide-frame {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .5), 0 0 14px var(--gold);
+}
+
+#guideHint {
+  color: var(--ink-soft);
+}
+
+#guideProgress {
+  accent-color: var(--gold);
+}
+
 
 /* 2. 페이지 --------------------------------------------------------------- */
 body {

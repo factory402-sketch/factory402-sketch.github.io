@@ -13,7 +13,7 @@ function showRecipeQR(recipe, feedback) {
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#133c32';
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--qr-ink').trim() || '#133c32';
   for (let row = 0; row < code.getModuleCount(); row++) {
     for (let col = 0; col < code.getModuleCount(); col++) {
       if (code.isDark(row, col)) ctx.fillRect((col + quiet) * scale, (row + quiet) * scale, scale, scale);
