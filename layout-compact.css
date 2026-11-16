@@ -1,0 +1,151 @@
+/* ==========================================================================
+   카페이유 · 추출 도우미 — 한 화면(no-scroll) 컴팩트 레이아웃 (v2.08)
+   styles.css → icons.css → 테마(espresso.css) 다음에 불러옵니다.
+   아이콘 버튼 레이어(icons.css)가 키워 둔 높이까지 여기서 다시 잡으므로
+   가장 마지막 스타일시트여야 합니다.
+
+   목표: 헤더부터 맨 아래 도구 버튼 줄·검색줄까지 100dvh 안에, 스크롤 없이.
+   · main을 세로 flex 100dvh로 두고 타이머 카드만 남는 높이를 차지합니다.
+   · 길이가 짧은 기기에서는 수치가 dvh에 비례해 함께 줄어듭니다.
+   · 타이머 카드에는 최소 높이를 두어 내용이 절대 잘리지 않게 하고,
+     그보다 화면이 짧은 예외 기기에서는 main 안에서만 살짝 스크롤됩니다.
+   · 가로 모드(짧은 화면)의 2단 배치는 styles.css의 기존 규칙을 그대로 씁니다.
+   ========================================================================== */
+@media (min-height: 521px) {
+  main {
+    height: 100dvh;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(4px, .72dvh, 8px);
+    padding-block: clamp(6px, 1dvh, 12px);
+    padding-bottom: max(clamp(6px, 1dvh, 12px), env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
+  main > * { flex: 0 0 auto; }
+  /* 타이머는 남는 높이를 가져가되, 내용이 잘리지 않도록 최소 높이를 지킨다. */
+  main > .timer { flex: 1 1 auto; min-height: 240px; min-height: min-content; }
+  main > .brewError:empty,
+  main > .current-share-result:not(:has(span:not(:empty), input:not([hidden]))) { display: none; }
+
+  /* 헤더 · 링크 ---------------------------------------------------------- */
+  .main-top { gap: clamp(5px, .8dvh, 9px); }
+  header { min-height: 36px; gap: 8px; }
+  .brand { gap: 8px; }
+  .brand-mark { width: 33px; height: 33px; border-radius: 11px; }
+  .brand-mark svg { width: 18px; height: 18px; }
+  .logo { font-size: 17px; }
+  .logo > span { font-size: 9.5px; letter-spacing: .09em; }
+  .release-version { font-size: 8.5px; }
+  main header .icon { width: 34px; height: 34px; min-height: 34px; border-radius: 11px; }
+  main header .icon .btn-icon { width: 18px; height: 18px; }
+  .header-actions { gap: 5px; }
+  .main-links { gap: 6px; }
+  .news-banner, .shop-entry { min-height: 38px; }
+  .news-badge { padding: 3px 7px; font-size: 9.5px; }
+  .news-headline { font-size: 11px; }
+  .shop-entry { padding: 0 11px; font-size: 11px; gap: 4px; }
+  .shop-entry .btn-icon { width: 15px; height: 15px; }
+
+  /* 모드 탭 · 푸어 횟수 스테퍼 ------------------------------------------ */
+  .mode-bar { gap: 6px; }
+  .tabs { padding: 3px; }
+  .tabs button { min-height: 34px; font-size: 12px; }
+  .pour-count { padding: 0 4px 0 7px; }
+  .pour-count button { width: 26px; height: 26px; font-size: 14px; border-radius: 8px; }
+  .pour-count #pourCountValue { min-width: 21px; font-size: 12px; }
+
+  /* 원두 · 물 입력 ------------------------------------------------------- */
+  section.fields { padding: 9px 13px 8px; gap: 6px 12px; }
+  .label { font-size: 11px; }
+  .label-code { font-size: 8px; }
+  .inputwrap input { font-size: clamp(23px, 3.1dvh, 30px); padding: 1px 0 3px; }
+  .unit { font-size: 12px; }
+  /* 좁은 기기에서도 프리셋은 한 줄(4칸)로 유지해 세로 길이를 아낀다. */
+  .presets { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin-top: 6px; }
+  .presets button { min-height: 28px; font-size: 10px; padding: 3px 1px; }
+  .error { font-size: 11px; }
+
+  /* 결과 ----------------------------------------------------------------- */
+  .result { padding: 8px 13px 9px; gap: 5px; }
+  .result-label { font-size: 10.5px; }
+  .result-value { font-size: clamp(23px, 3.2dvh, 30px); }
+  .result-explain { font-size: 11px; line-height: 1.45; min-height: 0; }
+  .result-actions { gap: 6px; }
+  .result-actions .icon { min-height: 46px; padding: 5px 3px 4px; gap: 2px; border-radius: 12px; }
+  .result-actions .icon .btn-icon { width: 17px; height: 17px; }
+  .result-actions .icon span { font-size: 9px; }
+
+  /* 타이머 — 남는 높이를 이 카드가 가져가고, 안쪽은 세로 가운데 정렬 ----- */
+  .timer {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 13px;
+    border-radius: 20px;
+  }
+  .timerhead { font-size: 9.5px; }
+  .timer-body { flex: 1 1 auto; gap: 11px; margin-top: 4px; align-items: center; align-content: center; }
+  .brew-dial { width: clamp(96px, 13dvh, 140px); }
+  .clock { font-size: clamp(20px, 3dvh, 28px); }
+  #brewRound { font-size: 10px; }
+  .timer-status { padding-inline-start: 11px; }
+  .cue { font-size: clamp(16px, 2dvh, 19px); line-height: 1.26; }
+  #brewPour { font-size: clamp(19px, 2.5dvh, 24px); margin-top: 1px; }
+  #brewTemperature { font-size: 10.5px; }
+  .next { font-size: 11px; line-height: 1.4; margin-top: 3px; }
+  .timer-actions { flex: none; margin-top: 8px; gap: 5px; }
+  .timer-actions #start { min-height: 44px; padding: 7px 10px; font-size: 15.5px; border-radius: 13px; }
+  .timer-actions .timer-secondary { gap: 5px; }
+  .timer-secondary button { min-height: 36px; padding: 0 4px; gap: 4px; font-size: 9.5px; border-radius: 10px; }
+  .timer-secondary button svg { width: 14px; height: 14px; }
+
+  /* 도구 4칸 ------------------------------------------------------------- */
+  .bottom { gap: 6px; margin: 0; }
+  .bottom button { min-height: 54px; padding: 6px 3px 5px; gap: 4px; font-size: 9.5px; border-radius: 13px; }
+  .bottom .btn-icon { width: 16px; height: 16px; padding: 4px; border-radius: 8px; }
+
+  /* 레시피 검색 — 한 줄 컴팩트 ------------------------------------------- */
+  .recipe-search { padding: 7px 10px 8px; }
+  .recipe-search label {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .recipe-search-bar { gap: 6px; }
+  .recipe-search-bar input { height: 36px; font-size: 14px; }
+  .recipe-search-bar button { height: 36px; padding: 0 13px; font-size: 12px; }
+  #recipeSearchStatus { margin-top: 5px; font-size: 10px; line-height: 1.4; }
+  #recipeSearchResults { max-height: 28dvh; margin-top: 6px; }
+}
+
+/* 아주 짧은 세로(≤740px)에서는 한 번 더 조여 360×740에서도 한 화면 유지 ---- */
+@media (min-height: 521px) and (max-height: 760px) {
+  main { gap: 5px; padding-block: 6px; }
+  /* 짧은 화면에서는 버전 표기를 '추출 도우미' 옆 한 줄로 붙여 한 줄을 아낀다. */
+  .logo { grid-template-columns: auto auto; column-gap: 6px; align-items: baseline; justify-content: start; }
+  .logo > span { grid-column: 1; grid-row: 2; }
+  .release-version { grid-column: 2; grid-row: 2; }
+  main header .icon { width: 32px; height: 32px; min-height: 32px; }
+  .news-banner, .shop-entry { min-height: 36px; }
+  .tabs button { min-height: 32px; font-size: 11.5px; }
+  .pour-count button { width: 24px; height: 24px; }
+  section.fields { padding: 7px 12px 7px; }
+  .presets button { min-height: 26px; }
+  .result { padding: 7px 12px 8px; }
+  .result-actions .icon { min-height: 42px; padding: 4px 3px 3px; }
+  .bottom button { min-height: 50px; padding: 5px 3px 4px; }
+  .bottom .btn-icon { width: 15px; height: 15px; padding: 3px; }
+  .recipe-search { padding: 6px 10px 6px; }
+  .recipe-search-bar input, .recipe-search-bar button { height: 34px; }
+  #recipeSearchStatus { margin-top: 3px; font-size: 9.5px; }
+  .brew-dial { width: clamp(88px, 12.5dvh, 120px); }
+  .timer-secondary button { min-height: 34px; }
+  .timer-actions #start { min-height: 42px; }
+  .timer-actions { margin-top: 7px; }
+}

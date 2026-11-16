@@ -23,7 +23,7 @@
     if (!recipe || typeof recipe.name !== 'string' || !recipe.name.trim() || !Array.isArray(recipe.values) || recipe.values.length !== fields.length) return false;
     const [coffee, water, count, bloom, interval, drain] = recipe.values;
     return coffee > 0 && coffee <= 100000 && water >= 1 && water <= 100000 &&
-      recipe.values.every(Number.isFinite) && [3,4,5,10].includes(count) &&
+      recipe.values.every(Number.isFinite) && [2,3,4,5,10].includes(count) &&
       [bloom, interval].every(n => Number.isInteger(n) && n >= 10 && n <= 120) &&
       Number.isInteger(drain) && drain >= 15 && drain <= 180;
   }

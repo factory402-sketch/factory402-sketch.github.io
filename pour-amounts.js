@@ -2,7 +2,7 @@ const PourAmounts = (() => {
   const group = $('pourAmounts');
   const count = $('pourCount');
   function normalize(values, size) {
-    if (!Array.isArray(values) || ![3, 4, 5, 10].includes(size)) return [];
+    if (!Array.isArray(values) || ![2, 3, 4, 5, 10].includes(size)) return [];
     const amounts = Array.from({length: size}, (_, i) => {
       const value = values[i];
       return Number.isFinite(value) && value >= .01 && value <= 100000 &&
@@ -57,7 +57,9 @@ const PourAmounts = (() => {
     });
   }
   group.addEventListener('input', sync);
-  count.addEventListener('change', () => { render(read()); sync(); });
+  // 푸어 횟수가 바뀌면 회차별 물량은 새 횟수 기준으로 다시 나눠야 하므로 비웁니다.
+  // (예: 2회 40/260 g에서 3회로 늘리면 3차에 남은 물이 없어 합계가 맞지 않습니다.)
+  count.addEventListener('change', () => { render(); sync(); });
   $('coffee').addEventListener('input', sync);
   $('coffeePresets').addEventListener('click', sync);
   $('ratioTab').addEventListener('click', sync);
