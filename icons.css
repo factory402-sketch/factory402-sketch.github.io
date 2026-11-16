@@ -1,0 +1,147 @@
+/* ==========================================================================
+   카페이유 · 추출 도우미 — 버튼 아이콘화 레이어 (3개 색감 시안 공통)
+   styles.css 뒤, 테마 CSS 앞에 놓습니다.
+   · 아이콘은 모두 currentColor 선 아이콘(.btn-icon)이라 색은 테마가 정합니다.
+   · id·data-*·aria-label·스크립트가 덮어쓰는 라벨 span은 그대로 두고
+     모양(배치·크기·간격)만 바꿉니다.
+   ========================================================================== */
+
+/* 1. 아이콘 기본 규격 ---------------------------------------------------- */
+.btn-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  display: block;
+}
+
+/* 2. 상단 — 앱 설치 · 설정 ----------------------------------------------- */
+.header-actions { gap: 7px; }
+
+main header .icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-soft);
+  box-shadow: 0 1px 2px rgba(20, 24, 22, .05);
+}
+
+main header .icon .btn-icon { width: 20px; height: 20px; }
+
+main header .icon:hover {
+  border-color: var(--gold);
+  color: var(--green);
+}
+
+main header .icon:active:not(:disabled) { transform: translateY(1px) scale(.98); }
+
+/* 3. 결과 행 — 복사 · 공유 · QR (아이콘 + 아주 짧은 캡션) ----------------- */
+.result-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.result-actions .icon {
+  flex-direction: column;
+  gap: 3px;
+  min-height: 54px;
+  padding: 8px 4px 7px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--green);
+}
+
+.result-actions .icon .btn-icon { width: 19px; height: 19px; }
+
+.result-actions .icon span {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: -.005em;
+  line-height: 1.2;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.result-actions .icon:active:not(:disabled) { transform: translateY(1px); }
+
+/* 4. 타이머 카드 — 추출 시작 CTA를 키우고 보조 3버튼은 낮춘다 ------------- */
+.timer-actions { gap: 9px; margin-top: 15px; }
+
+.timer-actions #start {
+  min-height: 58px;
+  font-size: 16.5px;
+  border-radius: 15px;
+  letter-spacing: -.015em;
+}
+
+.timer-actions .timer-secondary { gap: 6px; }
+
+.timer-secondary button {
+  min-height: 44px;
+  padding: 0 4px;
+  gap: 6px;
+  border-radius: 11px;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: -.01em;
+}
+
+.timer-secondary button svg {
+  width: 16px;
+  height: 16px;
+  opacity: 1;
+}
+
+.timer-secondary button span { white-space: nowrap; }
+
+/* 5. 도구 4칸 — 커스텀 SVG를 아이콘 타일로 ------------------------------- */
+.bottom { gap: 7px; }
+
+.bottom button {
+  min-height: 72px;
+  padding: 9px 4px 8px;
+  gap: 6px;
+  border-radius: var(--radius-m);
+  font-size: 10px;
+  letter-spacing: -.01em;
+}
+
+.bottom .btn-icon {
+  width: 20px;
+  height: 20px;
+  padding: 6px;
+  box-sizing: content-box;
+  border-radius: 10px;
+  background: var(--green-tint);
+  color: var(--green);
+  transition: background .18s ease, color .18s ease;
+}
+
+.bottom button:hover .btn-icon { background: var(--gold-tint); color: var(--gold); }
+
+/* 6. 원두·추천 진입 버튼 — 콩 아이콘 + 짧은 라벨 -------------------------- */
+.shop-entry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.shop-entry .btn-icon { width: 17px; height: 17px; opacity: .92; }
+
+/* 7. 좁은 화면 보정 ------------------------------------------------------ */
+@media (max-width: 380px) {
+  main header .icon { width: 40px; height: 40px; min-height: 40px; padding: 0; }
+  main header .icon .btn-icon { width: 18px; height: 18px; }
+  .result-actions .icon { min-height: 50px; }
+  .result-actions .icon span { font-size: 9px; }
+  .timer-secondary button { font-size: 9.5px; gap: 4px; }
+  .bottom button { min-height: 66px; font-size: 9.5px; }
+  .bottom .btn-icon { width: 18px; height: 18px; padding: 5px; }
+}

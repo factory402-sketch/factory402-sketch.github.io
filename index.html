@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#3A261E">
+<title>카페이유 · 추출 도우미</title>
+<meta name="description" content="카페이유 추출 도우미 — 추출 비율 계산, 푸어 타이머, 레시피 보관함, 분쇄도 비교.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./icons.css">
+<!-- 색감: ☕ 에스프레소 & 오트 (2026-11-17 최종 선택) -->
+<link rel="stylesheet" href="./espresso.css">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="카페이유">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head>
+<body>
+<main>
+
+  <!-- 상단: 브랜드 · 설치 · 설정 -->
+  <div class="main-top">
+    <header>
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 9h11v4.2A4.8 4.8 0 0 1 11.2 18H9.8A4.8 4.8 0 0 1 5 13.2V9Z"/>
+            <path d="M16 10h1.6a2.4 2.4 0 0 1 0 4.8H16"/>
+            <path d="M8.5 5.6c.9-1 .9-1.8 0-2.8M12 5.6c.9-1 .9-1.8 0-2.8"/>
+            <path d="M4 21h13"/>
+          </svg>
+        </span>
+        <div class="logo">cafe.leeu <span>추출 도우미</span><small class="release-version">2026.11.16 v2.06</small></div>
+      </div>
+      <div class="header-actions">
+        <button class="icon install-entry" data-open="installDialog" aria-label="앱 설치 안내">
+          <svg class="btn-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.4v9.4"/><path d="m8.3 9.3 3.7 3.7 3.7-3.7"/>
+            <path d="M5.5 14.8v3.4A1.9 1.9 0 0 0 7.4 20h9.2a1.9 1.9 0 0 0 1.9-1.8v-3.4"/>
+          </svg>
+        </button>
+        <button class="icon" data-open="settingsDialog" aria-label="추출 설정">
+          <svg class="btn-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2.6h-.44a1.8 1.8 0 0 0-1.8 1.8v.18a1.8 1.8 0 0 1-.9 1.56l-.39.22a1.8 1.8 0 0 1-1.8 0l-.13-.07a1.8 1.8 0 0 0-2.46.66l-.2.34a1.8 1.8 0 0 0 .66 2.46l.13.09a1.8 1.8 0 0 1 .9 1.55v.46a1.8 1.8 0 0 1-.9 1.57l-.13.08a1.8 1.8 0 0 0-.66 2.46l.2.34a1.8 1.8 0 0 0 2.46.66l.13-.07a1.8 1.8 0 0 1 1.8 0l.39.22a1.8 1.8 0 0 1 .9 1.56v.18a1.8 1.8 0 0 0 1.8 1.8h.44a1.8 1.8 0 0 0 1.8-1.8v-.18a1.8 1.8 0 0 1 .9-1.56l.39-.22a1.8 1.8 0 0 1 1.8 0l.13.07a1.8 1.8 0 0 0 2.46-.66l.2-.35a1.8 1.8 0 0 0-.66-2.46l-.13-.07a1.8 1.8 0 0 1-.9-1.57v-.45a1.8 1.8 0 0 1 .9-1.57l.13-.08a1.8 1.8 0 0 0 .66-2.46l-.2-.34a1.8 1.8 0 0 0-2.46-.66l-.13.07a1.8 1.8 0 0 1-1.8 0l-.39-.22a1.8 1.8 0 0 1-.9-1.56v-.18a1.8 1.8 0 0 0-1.8-1.8z"/>
+            <circle cx="12" cy="12" r="2.85"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="main-links">
+      <button class="news-banner" data-open="newsDialog">
+        <span class="news-badge">카페 소식</span>
+        <span id="latestHeadline" class="news-headline">최근 글 보기</span>
+        <i aria-hidden="true">›</i>
+      </button>
+      <button class="shop-entry" data-open="shopDialog">
+        <svg class="btn-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="12" cy="12" rx="5.3" ry="7.5" transform="rotate(38 12 12)"/>
+          <path d="M8.7 7.9c2.7 1 3.9 6.9 6.6 8.2"/>
+        </svg>
+        <span>원두·추천</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 계산 모드 -->
+  <div class="tabs" role="tablist" aria-label="계산 방식">
+    <button role="tab" aria-selected="true" id="ratioTab">추출 비율 계산</button>
+    <button role="tab" aria-selected="false" id="waterTab">필요한 물 계산</button>
+  </div>
+
+  <!-- 입력 -->
+  <section class="fields">
+    <div class="field">
+      <label class="label" for="coffee"><span class="label-text">원두</span><span class="label-code">COFFEE</span></label>
+      <div class="inputwrap">
+        <input id="coffee" type="number" inputmode="decimal" min="0.1" max="100000" step="any" value="20" aria-describedby="error">
+        <span class="unit">g</span>
+      </div>
+      <div class="presets" id="coffeePresets">
+        <button data-n="10">10 g</button><button data-n="15">15 g</button><button data-n="20">20 g</button><button data-n="30">30 g</button>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label" for="second"><b class="label-text" id="secondLabel">붓는 물</b><span class="label-code" id="secondEnglish">WATER</span></label>
+      <div class="inputwrap">
+        <span id="prefix" class="unit prefix" hidden>1 :</span>
+        <input id="second" type="number" inputmode="decimal" min="0.1" max="100000" step="any" value="300" aria-describedby="error">
+        <span class="unit" id="secondUnit">g</span>
+      </div>
+      <div class="presets" id="secondPresets"></div>
+    </div>
+    <p class="error" id="error" role="alert"></p>
+  </section>
+
+  <!-- 결과 -->
+  <section class="result" aria-live="polite">
+    <div class="result-main">
+      <span class="result-label" id="resultLabel">원두 : 물</span>
+      <strong class="result-value" id="result">1 : 15</strong>
+    </div>
+    <p class="result-explain" id="explain"></p>
+    <span id="equation" class="sr-only"></span>
+    <div class="result-actions">
+      <button class="icon" id="copy">
+        <svg class="btn-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9.2" y="9.2" width="10.6" height="10.6" rx="2.4"/>
+          <path d="M14.8 9.2V5.6a1.6 1.6 0 0 0-1.6-1.6H5.6A1.6 1.6 0 0 0 4 5.6v7.6a1.6 1.6 0 0 0 1.6 1.6h3.6"/>
+        </svg>
+        <span id="copyLabel">결과 복사</span>
+      </button>
+      <button type="button" class="icon" id="shareCurrent" aria-label="현재 설정 공유">
+        <svg class="btn-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 15.4V3.5"/><path d="m8.2 7.3 3.8-3.8 3.8 3.8"/>
+          <path d="M7.4 10.8H5.6A1.6 1.6 0 0 0 4 12.4v6a1.6 1.6 0 0 0 1.6 1.6h12.8a1.6 1.6 0 0 0 1.6-1.6v-6a1.6 1.6 0 0 0-1.6-1.6h-1.8"/>
+        </svg>
+        <span>공유</span>
+      </button>
+      <button class="icon" id="currentQR" aria-label="현재 설정 레시피 QR">
+        <svg class="btn-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.4" y="3.4" width="6.6" height="6.6" rx="1.7"/>
+          <rect x="14" y="3.4" width="6.6" height="6.6" rx="1.7"/>
+          <rect x="3.4" y="14" width="6.6" height="6.6" rx="1.7"/>
+          <rect x="13.9" y="13.9" width="2.4" height="2.4" rx=".8" fill="currentColor" stroke="none"/>
+          <rect x="17.9" y="13.9" width="2.4" height="2.4" rx=".8" fill="currentColor" stroke="none"/>
+          <rect x="17.9" y="17.9" width="2.4" height="2.4" rx=".8" fill="currentColor" stroke="none"/>
+        </svg>
+        <span>QR</span>
+      </button>
+    </div>
+  </section>
+  <div class="current-share-result">
+    <span role="status" id="currentShareFeedback"></span>
+    <input id="currentShareLink" aria-label="현재 설정 공유 링크" readonly hidden>
+  </div>
+
+  <!-- 추출 타이머 -->
+  <section class="timer" aria-label="추출 타이머">
+    <div class="timerhead"><span>추출 타이머</span></div>
+    <div class="timer-body">
+      <div class="brew-dial">
+        <svg id="brewRing" viewBox="0 0 160 160" aria-hidden="true"></svg>
+        <div class="dial-center">
+          <div id="clock" class="clock" role="timer">00:00</div>
+          <span id="brewRound">0 / 5</span>
+        </div>
+      </div>
+      <div class="timer-status">
+        <div id="cue" class="cue" aria-live="polite">준비되셨나요?</div>
+        <strong id="brewPour" hidden></strong>
+        <div id="brewTemperature" hidden></div>
+        <div id="next" class="next"></div>
+      </div>
+    </div>
+    <div class="timer-actions">
+      <button id="start" type="button">추출 시작</button>
+      <div class="timer-secondary">
+        <button type="button" data-open="recipeDialog">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9.6 6.8h10M9.6 12h10M9.6 17.2h10"/>
+            <circle cx="5.3" cy="6.8" r="1.15"/><circle cx="5.3" cy="12" r="1.15"/><circle cx="5.3" cy="17.2" r="1.15"/>
+          </svg>
+          <span>전체 순서</span>
+        </button>
+        <button id="reopenBrewMemo" type="button">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.2 19.8h4.1L20 8.3a2.1 2.1 0 0 0-3-3L5.2 16.9z"/>
+            <path d="m14.9 6.5 2.7 2.7"/>
+          </svg>
+          <span id="timerMemoLabel">메모</span>
+        </button>
+        <button id="reset" type="button">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.5 12a7.5 7.5 0 1 0 2.4-5.5"/>
+            <path d="M4.3 4.4v4.3h4.3"/>
+          </svg>
+          <span>초기화</span>
+        </button>
+      </div>
+    </div>
+  </section>
+  <p id="brewError" class="brewError" role="alert"></p>
+
+  <!-- 도구 -->
+  <nav class="bottom" aria-label="추출 도구">
+    <button data-open="grindDialog">
+      <svg class="btn-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="7.5" cy="8.2" r="2.5"/><circle cx="13.4" cy="5.9" r="1.25"/>
+        <circle cx="17.3" cy="9.9" r="1.9"/><circle cx="11.2" cy="11" r=".95"/>
+        <path d="M3.6 18.4h16.8"/>
+        <path d="M6.8 18.4v-2.2M12 18.4v-1.3M17.2 18.4v-2.2"/>
+      </svg>
+      <span>분쇄도 비교</span>
+    </button>
+    <button data-open="settingsDialog">
+      <svg class="btn-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3.6 8h6.2M14.2 8h6.2M3.6 16h9.4M18.8 16h1.6"/>
+        <circle cx="12" cy="8" r="2.1"/><circle cx="16.2" cy="16" r="2.1"/>
+      </svg>
+      <span>레시피 설정</span>
+    </button>
+    <button data-open="audioDialog">
+      <svg class="btn-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4.2 9.6h2.9l4.5-3.8v12.4l-4.5-3.8H4.2z"/>
+        <path d="M15.2 9.2a4.1 4.1 0 0 1 0 5.6"/>
+        <path d="M17.9 6.6a7.9 7.9 0 0 1 0 10.8"/>
+      </svg>
+      <span>음성·알림음</span>
+    </button>
+    <button data-open="favoritesDialog">
+      <svg class="btn-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.6 3.6h10.8a1.4 1.4 0 0 1 1.4 1.4v15.2L12 16.1l-6.8 4.1V5a1.4 1.4 0 0 1 1.4-1.4Z"/>
+        <path d="M9.4 8.2h5.2"/>
+      </svg>
+      <span>레시피 보관함</span>
+    </button>
+  </nav>
+
+  <!-- 레시피 검색 -->
+  <section class="recipe-search" aria-label="레시피 검색">
+    <form id="recipeSearchForm" role="search">
+      <label for="recipeSearchInput">레시피 검색</label>
+      <div class="recipe-search-bar">
+        <input id="recipeSearchInput" type="search" maxlength="100" placeholder="레시피 이름 또는 메모 검색" autocomplete="off" aria-controls="recipeSearchResults">
+        <button type="submit">검색</button>
+      </div>
+    </form>
+    <p id="recipeSearchStatus" role="status">추천 레시피와 이 기기에 저장한 레시피를 찾아보세요.</p>
+    <div id="recipeSearchResults" hidden></div>
+  </section>
+</main>
+
+<!-- 1. 원두·추천 -->
+<dialog id="shopDialog" aria-labelledby="shopTitle">
+  <div class="dialoghead"><h2 id="shopTitle">원두·추천</h2><button data-close aria-label="원두·추천 닫기">닫기 ✕</button></div>
+  <div class="shopbar"><span>오늘의 한 잔, 카페이유 원두로.</span><button data-open="beansDialog">원두 보기 ↗</button></div>
+  <aside class="ad-panel" aria-label="광고">
+    <span class="ad-label">광고</span>
+    <div class="water-pick">
+      <a href="https://toss.shopping/_m/5POhyotC" target="_blank" rel="sponsored noopener">
+        <img src="./baeksansu.png" alt="" width="74" height="58">
+        <div>
+          <strong>산미 있는 원두를 골랐다면, 물까지 챙겨 보세요.</strong>
+          <p>다음 한 잔에 카페이유가 추천하는 백산수</p>
+          <span>백산수 1L × 24개 · 토스쇼핑에서 보기 ↗</span>
+        </div>
+      </a>
+      <small>✱ 이 포스팅은 토스쇼핑 쉐어링크 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</small>
+    </div>
+    <a class="ad-contact" href="mailto:cafe.leeu@gmail.com?subject=카페이유%20추출%20도우미%20광고%20문의">추출 도우미 광고 문의 ↗</a>
+  </aside>
+</dialog>
+
+<!-- 2. 앱 설치 안내 -->
+<dialog id="installDialog" aria-labelledby="installTitle">
+  <div class="dialoghead"><h2 id="installTitle">앱 설치 안내</h2><button data-close aria-label="설치 안내 닫기">닫기 ✕</button></div>
+  <section class="install-platform" aria-labelledby="installIos">
+    <h3 id="installIos">아이폰 · Safari</h3>
+    <ol>
+      <li>이 페이지를 <b>Safari</b>에서 여세요.</li>
+      <li><b>공유 → 홈 화면에 추가</b>를 누르세요.</li>
+      <li><b>웹 앱으로 열기</b>를 켜고 <b>추가</b>를 누르세요.</li>
+    </ol>
+  </section>
+  <section class="install-platform" aria-labelledby="installAndroid">
+    <h3 id="installAndroid">안드로이드 · Chrome</h3>
+    <ol>
+      <li>이 페이지를 <b>Chrome</b>에서 여세요.</li>
+      <li>주소창 옆 <b>⋮ → 설치 및 바로가기 만들기 → 설치</b>를 누르세요. 메뉴에 <b>홈 화면에 추가</b>가 보이면 그 항목을 선택하세요.</li>
+      <li>화면 안내에 따라 설치한 뒤 <b>카페이유</b> 아이콘을 누르세요.</li>
+    </ol>
+    <p>‘설치’가 보이지 않으면 <b>바로가기 만들기</b>를 선택하세요. 홈 화면의 아이콘을 누르면 Chrome에서 열립니다.</p>
+  </section>
+  <p class="hint">카카오톡이나 인스타그램에서 열었다면 링크를 복사해 위 브라우저에서 여세요.</p>
+</dialog>
+
+<!-- 3. 레시피 설정 -->
+<dialog id="settingsDialog" aria-labelledby="settingsTitle">
+  <div class="dialoghead"><h2 id="settingsTitle">레시피 설정</h2><button data-close aria-label="레시피 설정 닫기">닫기 ✕</button></div>
+  <div class="fields">
+    <div class="settings">
+      <label for="pourCount">총 푸어 횟수 (뜸 포함)
+        <select id="pourCount"><option value="3">3회</option><option value="4">4회</option><option value="5" selected>5회</option><option value="10">10회</option></select>
+      </label>
+      <label for="bloom">뜸 시간 (초)<input id="bloom" type="number" inputmode="numeric" min="10" max="120" step="1" value="40"></label>
+      <label for="interval">푸어 시작 간격 (초)<input id="interval" type="number" inputmode="numeric" min="10" max="120" step="1" value="30"></label>
+      <label for="drain">마지막 푸어 후 대기 (초)<input id="drain" type="number" inputmode="numeric" min="15" max="180" step="1" value="45"></label>
+    </div>
+    <fieldset class="pour-temperature-fields">
+      <legend>회차별 물량 · 선택</legend>
+      <p class="pour-amount-hint">빈 회차에는 남은 물을 균등하게 나눕니다. 전부 입력하면 회차별 합계로 총 물량과 비율을 계산합니다.</p>
+      <div class="settings" id="pourAmounts"></div>
+      <p id="pourRatioPreview" class="pour-ratio-preview" aria-live="polite"></p>
+      <p id="pourAmountError" class="error" role="status"></p>
+    </fieldset>
+    <fieldset class="pour-temperature-fields">
+      <legend>회차별 물 온도 · 선택</legend>
+      <div class="settings" id="pourTemperatures"></div>
+    </fieldset>
+    <div class="recipe-memo-field">
+      <label for="recipeMemo">레시피 메모 · 선택</label>
+      <textarea id="recipeMemo" rows="3" maxlength="300" placeholder="예: 원두 숙성 14일 · 뜸 후 가볍게 스월링 · 복숭아 향과 단맛"></textarea>
+      <div class="recipe-memo-footer">
+        <small id="recipeMemoCount">0 / 300</small>
+        <button type="button" id="saveAppliedMemo">적용한 레시피에 메모 저장</button>
+      </div>
+      <p class="hint" id="recipeMemoStatus" role="status">새 레시피는 보관함에서 현재 설정을 저장해 주세요. 공유 링크와 QR에 메모도 포함됩니다.</p>
+    </div>
+  </div>
+  <p class="hint"><a href="/stats">운영자 이용 통계</a></p>
+  <p class="hint">뜸은 첫 물붓기 시작부터, 푸어 간격과 마지막 대기는 각 푸어의 시작부터 잽니다. 추출 중에는 초기화 후 설정을 바꿀 수 있어요.</p>
+  <p class="hint">총 물량을 균등하게 나누는 조절용 예시이며, 특정 바리스타의 공식 레시피가 아닙니다.</p>
+</dialog>
+
+<!-- 4. 추출 메모 -->
+<dialog id="brewMemoDialog" aria-labelledby="brewMemoTitle">
+  <div class="dialoghead"><h2 id="brewMemoTitle">이번 커피는 어땠나요?</h2><button data-close aria-label="추출 메모 닫기">나중에 ✕</button></div>
+  <p class="hint">물 빠짐을 확인하고 추출을 마무리한 뒤, 맛을 기록해 보세요.</p>
+  <strong id="brewMemoRecipe"></strong>
+  <form id="brewMemoForm">
+    <label for="brewEndMemo">레시피 메모 · 최대 300자</label>
+    <textarea id="brewEndMemo" rows="4" maxlength="300" placeholder="예: 산미가 선명하고 단맛은 부족함. 다음에는 조금 더 가늘게."></textarea>
+    <p class="hint">기존 메모를 이어 쓰거나 수정할 수 있어요.</p>
+    <label id="brewMemoNameLabel" for="brewMemoName" hidden>새 레시피 이름<input id="brewMemoName" maxlength="40" placeholder="예: 오늘의 핸드드립"></label>
+    <button type="submit" id="brewMemoSave">메모 저장</button>
+    <p id="brewMemoFeedback" role="status"></p>
+  </form>
+</dialog>
+
+<!-- 5. 전체 순서 -->
+<dialog id="recipeDialog" aria-labelledby="recipeTitle">
+  <div class="dialoghead"><h2 id="recipeTitle">전체 푸어링 순서</h2><button data-close aria-label="전체 순서 닫기">닫기 ✕</button></div>
+  <div class="recipe-summary"><span id="recipeRatio"></span><strong id="recipeProgress">00:00</strong></div>
+  <div class="recipe-columns" aria-hidden="true"><span>시작</span><span>회차 · 물 온도</span><span>붓는 양 / 누적</span></div>
+  <ol class="recipe" id="recipe" aria-label="푸어링 순서"></ol>
+  <p class="hint">각 시각에 물붓기를 시작하세요. 완료 시각은 예상 안내이므로 실제 물 빠짐을 보고 마무리하세요.</p>
+</dialog>
+
+<!-- 6. 음성·알림음 -->
+<dialog id="audioDialog" aria-labelledby="audioTitle">
+  <div class="dialoghead"><h2 id="audioTitle">음성·알림음</h2><button data-close aria-label="음성 설정 닫기">닫기 ✕</button></div>
+  <label class="sound"><input id="sound" type="checkbox" checked>알림음 켜기</label>
+  <label class="sound"><input id="voice" type="checkbox" checked>한국어 음성 안내</label>
+  <button id="testSound" type="button" class="copy">소리 미리 듣기 ♪</button>
+  <p id="audioStatus" class="brewHint" role="status">추출 시작 버튼을 누르면 한국어 안내가 바로 시작됩니다.</p>
+  <p class="hint">추출 시작을 누르면 바로 안내합니다. 화면 잠금이나 다른 앱 사용 중에는 음성이 제한될 수 있으니 화면을 열어두세요.</p>
+</dialog>
+
+<!-- 7. 사용 안내 -->
+<dialog id="helpDialog" aria-labelledby="helpTitle">
+  <div class="dialoghead"><h2 id="helpTitle">사용 안내</h2><button data-close aria-label="도움말 닫기">닫기 ✕</button></div>
+  <p class="hint">① 원두와 붓는 물의 총량을 입력하세요.<br>② 레시피 설정에서 횟수와 간격을 조절하세요.<br>③ 첫 물을 부으며 추출 시작을 누르세요.<br>④ 안내하는 누적 물량에 저울을 맞추세요.</p>
+  <p class="hint">완성된 커피가 아닌, 추출에 사용한 물의 총량을 입력합니다. 추출 비율은 수율이나 농도(TDS)와 다릅니다.</p>
+</dialog>
+
+<!-- 8. 카페 소식 -->
+<dialog id="newsDialog" aria-labelledby="newsTitle">
+  <div class="dialoghead"><h2 id="newsTitle">카페 소식</h2><button data-close aria-label="카페 소식 닫기">닫기 ✕</button></div>
+  <p class="news-intro">카페이유의 이야기와 한 잔을 위한 소식.</p>
+  <div class="news-filters" role="group" aria-label="소식 분류">
+    <button data-category="전체" aria-pressed="true">전체</button>
+    <button data-category="공지" aria-pressed="false">공지</button>
+    <button data-category="원두" aria-pressed="false">원두</button>
+    <button data-category="매장 이야기" aria-pressed="false">매장 이야기</button>
+  </div>
+  <div id="newsList"></div>
+  <p id="newsStatus" class="hint" role="status"></p>
+  <div class="news-footer">
+    <a href="https://www.instagram.com/cafe.leeu/" target="_blank" rel="noopener noreferrer">인스타그램 소식 ↗</a>
+    <button data-open="helpDialog">추출 도움말</button>
+  </div>
+</dialog>
+
+<!-- 9. 원두 소개 -->
+<dialog id="beansDialog" aria-labelledby="beansTitle">
+  <div class="dialoghead"><h2 id="beansTitle">다음 한 잔의 원두</h2><button data-close aria-label="원두 소개 닫기">닫기 ✕</button></div>
+  <p class="hint">카페이유 대표 블렌드를 만나보세요.</p>
+  <div class="bean-list">
+    <article><small>고소한 커피가 좋다면</small><h3>아직꿈</h3><p>고소한 맛의 시그니처 블렌드</p></article>
+    <article><small>가벼운 산미를 즐긴다면</small><h3>낯선골목</h3><p>가벼운 산미의 블렌드</p></article>
+    <article><small>디카페인을 찾는다면</small><h3>괜찮아</h3><p>콜롬비아 슈가케인 디카페인</p></article>
+  </div>
+  <a class="store-link" href="https://smartstore.naver.com/cafeleeu">스마트스토어에서 원두 구입 ↗</a>
+  <p class="hint">대표 블렌드 소개입니다. 현재 판매 상품·가격·품절 여부는 스마트스토어에서 확인해 주세요.</p>
+  <div class="store-options"><a href="https://linktr.ee/cafeleeu">공식 프로필에서 열기</a><button id="copyStore">스토어 주소 복사</button></div>
+  <span id="storeStatus" role="status"></span>
+</dialog>
+
+<!-- 10. 레시피 보관함 -->
+<dialog id="favoritesDialog" aria-labelledby="favTitle">
+  <div class="dialoghead"><h2 id="favTitle">레시피 보관함</h2><button data-close>닫기 ✕</button></div>
+  <p class="tds-target">필터커피 목표 TDS <strong>1.25–1.30%</strong></p>
+  <details class="import-box">
+    <summary>받은 레시피 링크 가져오기</summary>
+    <form id="importLinkForm">
+      <label for="incomingLink">공유 링크</label>
+      <input type="url" required id="incomingLink" placeholder="링크를 붙여넣으세요">
+      <button>레시피 확인</button>
+    </form>
+  </details>
+  <section id="received" class="received" hidden><h3>받은 레시피</h3><div id="receivedCard"></div></section>
+  <p id="shareFeedback" role="status"></p>
+  <input id="manualShareLink" aria-label="직접 복사할 공유 링크" readonly hidden>
+  <h3>추천 레시피</h3>
+  <div id="recommended"></div>
+  <h3>내 즐겨찾기</h3>
+  <div id="savedRecipes"></div>
+  <form id="saveRecipe">
+    <label for="recipeName">현재 설정 저장</label>
+    <div><input id="recipeName" maxlength="40" placeholder="예: 우리 매장 아침 드립" required><button>저장</button></div>
+    <label for="recipeTds">측정 TDS (%) · 선택</label>
+    <input id="recipeTds" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="예: 1.28">
+  </form>
+  <p class="hint">즐겨찾기는 이 기기의 브라우저에 저장됩니다.</p>
+  <p id="recipeStatus" role="status"></p>
+</dialog>
+
+<!-- 11. 레시피 QR -->
+<dialog id="labelDialog" aria-labelledby="labelTitle">
+  <div class="dialoghead"><h2 id="labelTitle">레시피 공유 QR</h2><button data-close aria-label="QR 닫기">닫기 ✕</button></div>
+  <div id="beanLabel"><b id="labelName"></b><img id="labelImage" alt="이 추출 레시피를 여는 QR 코드"><span>카페이유 · 스캔하면 추출 레시피가 열려요</span></div>
+  <div class="qr-actions"><button type="button" id="sendQR">QR 보내기</button><a id="downloadQR" download>QR 이미지 저장</a><button id="printQR">라벨 인쇄</button></div>
+  <p id="qrSendStatus" role="status"></p>
+  <p class="hint">인쇄한 QR은 흰 여백을 살리고, 포장지에 붙인 뒤 휴대폰으로 한 번 스캔해 주세요.</p>
+</dialog>
+
+<!-- 12. 분쇄도 비교 -->
+<dialog id="grindDialog" aria-labelledby="grindTitle">
+  <div class="dialoghead"><h2 id="grindTitle">분쇄도 비교</h2><button data-close>닫기 ✕</button></div>
+  <details class="grind-secondary"><summary>저장된 분쇄도 기준</summary><div id="grindReference" class="grind-box"></div></details>
+  <div class="grind-setup">
+    <label class="grind-field">측정 기준
+      <select id="grindMethod"><option value="card">카페이유 레시피 카드 · QR 15 mm</option><option value="square">인쇄용 기준 네모 · 10 mm</option></select>
+    </label>
+    <p class="hint" id="grindCardHint">흰 여백에 가루 20알 이상을 겹치지 않게 놓으세요. 밝은 곳에서 카드 바로 위로 촬영하세요.</p>
+    <p class="hint" id="grindSquareHint" hidden><a href="./grind-card.html" target="_blank" rel="noopener">10 mm 기준 네모 인쇄하기 ↗</a> · 네모 오른쪽 3 cm 안에 가루 20알 이상을 띄워 놓고 바로 위에서 찍으세요.</p>
+    <button id="guideStart" type="button">카드 프레임으로 촬영</button>
+  </div>
+  <section id="guideLive" hidden aria-label="카드 촬영">
+    <div class="guide-stage">
+      <video id="guideVideo" autoplay muted playsinline></video>
+      <div class="guide-frame" aria-hidden="true"><span>QR ↗</span></div>
+      <div class="guide-flash" aria-hidden="true"></div>
+      <span class="guide-captured" aria-hidden="true">✓ 촬영 완료</span>
+    </div>
+    <p id="guideHint" role="status"></p>
+    <progress id="guideProgress" max="1" value="0" aria-label="자동 촬영 준비"></progress>
+    <button type="button" id="guideSnap">지금 촬영</button> <button type="button" id="guideStop">카메라 닫기</button>
+  </section>
+  <details class="grind-secondary">
+    <summary>다른 방법으로 사진 가져오기</summary>
+    <label class="grind-field">기본 카메라로 촬영<input type="file" accept="image/*" capture="environment" id="grindCamera"></label>
+    <label class="grind-field">찍어둔 사진 선택<input type="file" accept="image/*" id="grindFile"></label>
+  </details>
+  <details id="grindControls" hidden>
+    <summary>촬영 사진 · 직접 측정</summary>
+    <button id="grindManual">자로 직접 측정하기</button>
+    <div id="grindManualFields" hidden>
+      <label class="grind-field">선택할 두 눈금 사이의 실제 거리 (mm)<input type="number" min="1" max="100" step="any" id="grindScale" value="10"></label>
+      <p id="grindStep" aria-live="polite"></p>
+    </div>
+    <canvas id="grindCanvas" aria-label="사진에서 눈금 두 점과 원두 영역의 두 모서리 선택"></canvas>
+    <div class="grind-actions" id="grindManualActions" hidden><button id="grindUndo">한 점 취소</button><button id="grindRun">입자 분석</button></div>
+  </details>
+  <p id="grindStatus" role="status"></p>
+  <div id="grindResult" hidden>
+    <h3>사진에서 추정한 분쇄도</h3>
+    <strong id="grindSize"></strong>
+    <p id="grindSpread"></p>
+    <p id="grindComparison"></p>
+    <label class="grind-field">그라인더 설정 메모 (선택)<input id="grindNote" maxlength="60" placeholder="예: 코만단테 C40 24클릭"></label>
+    <label class="grind-check"><input type="checkbox" id="grindPhotoOpt"> 기준 입자 사진도 함께 공유</label>
+    <p class="hint">공유 선택 시 지정한 가루 영역만 작은 흑백 이미지로 저장되며, 링크를 받은 사람이 볼 수 있습니다.</p>
+    <label class="grind-field">분쇄도를 저장할 레시피
+      <select id="grindTarget"><option value="">현재 추출 설정으로 새 레시피 만들기</option></select>
+    </label>
+    <label class="grind-field" id="grindNameLabel">새 레시피 이름<input id="grindRecipeName" maxlength="512" placeholder="예: 아직꿈 핸드드립"></label>
+    <button id="grindSave">분쇄도와 레시피 저장</button>
+    <button id="grindAttach">현재 레시피의 기준으로 사용</button>
+  </div>
+</dialog>
+
+<!-- 스크립트: 순서를 바꾸면 전역($·fmt·calculate) 의존이 깨집니다. -->
+<script src="./news.js"></script>
+<script src="./app.js"></script>
+<script src="./visits.js"></script>
+<script src="./brew-profiles.js"></script>
+<script src="./pour-temperatures.js"></script>
+<script src="./pour-amounts.js"></script>
+<script src="./brew.js"></script>
+<script src="./vendor/qr-encoder.js"></script>
+<script src="./recipe-link.js"></script>
+<script src="./label-qr.js"></script>
+<script src="./grind-analysis.js"></script>
+<script src="./grind-marker.js"></script>
+<script src="./grind-ui.js"></script>
+<script src="./grind-capture-quality.js"></script>
+<script src="./grind-camera.js"></script>
+<script src="./favorites.js"></script>
+<script>
+  document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => {
+    document.querySelectorAll('dialog[open]').forEach(d => d.close());
+    document.getElementById(b.dataset.open).showModal();
+  });
+  document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
+  document.querySelectorAll('dialog').forEach(d => d.addEventListener('click', e => {
+    if (e.target === d) {
+      const r = d.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) d.close();
+    }
+  }));
+</script>
+</body>
+</html>

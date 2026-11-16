@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>분쇄도 측정 카드 · 카페이유</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 24px;
+    background: #fbf8f3;
+    color: #34271d;
+    font: 16px/1.6 "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+          "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  }
+  main { max-width: 520px; margin: auto; }
+  h1 { font-size: 22px; letter-spacing: -0.02em; color: #194b40; }
+  p { color: #4c5a4e; }
+  button {
+    padding: 11px 20px;
+    font: inherit;
+    font-weight: 700;
+    color: #f8f2e1;
+    background: #194b40;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .paper { width: 78mm; margin-top: 20px; padding: 16mm; background: #fff; }
+  .marker { width: 10mm; height: 10mm; border: 3mm solid #000; background: #fff; }
+  @page { margin: 15mm; }
+  @media print {
+    .instructions { display: none; }
+    body, main, .paper { margin: 0; background: #fff; }
+    .marker { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="instructions">
+    <h1>분쇄도 측정 카드</h1>
+    <p>흰 종이에 실제 크기(100%)로 인쇄하고 네모 바깥 한 변이 10 mm인지 자로 한 번 확인하세요. 같은 종이를 계속 사용할 수 있어요.</p>
+    <button onclick="window.print()">카드 인쇄</button>
+  </div>
+  <div class="paper">
+    <div class="marker" aria-label="바깥쪽 10mm, 흰 중심 4mm인 검은 네모"></div>
+  </div>
+</main>
+</body>
+</html>
