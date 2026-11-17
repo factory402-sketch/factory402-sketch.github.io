@@ -805,7 +805,7 @@ section.fields::before {
   left: 50%;
   bottom: calc(16px + env(safe-area-inset-bottom));
   z-index: 70;
-  width: fit-content;
+  width: max-content;
   max-width: min(92vw, 430px);
   margin: 0;
   padding: 11px 15px;

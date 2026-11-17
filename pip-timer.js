@@ -1,5 +1,5 @@
 /* ==========================================================================
-   카페이유 · 추출 도우미 — 추출 타이머 작은 창(PiP)  v3.4
+   카페이유 · 추출 도우미 — 추출 타이머 작은 창(PiP)  v3.5
    --------------------------------------------------------------------------
    · 오프스크린 Canvas(480×270, ☕ 에스프레소 & 오트)에 실시간 추출 상태를 그린다.
      경과 시간 · 현재 푸어 단계 · 목표 누적 물량 · 다음 푸어 카운트다운.
@@ -8,6 +8,8 @@
    · 모바일 Safari / Android Chrome: canvas.captureStream(5) → <video> → PiP.
      Safari 는 소리 트랙이 있어야 PiP 버튼이 열리므로 무음 트랙을 붙인다.
    · 인앱 브라우저 등 미지원 환경에서는 안내 문구만 띄우고 본 화면은 그대로 둔다.
+   · iOS 홈 화면 웹앱(standalone)은 iOS 정책상 PiP 자체가 열리지 않으므로,
+     «홈 화면에 설치한 뒤»를 권하지 않고 Safari 로 여는 방법을 안내한다.
    · PiP 는 화면만 복제한다 — 본 화면의 타이머 상태는 건드리지 않으므로
      PiP 를 닫으면(lavepictureinpicture) 그대로 이어진다.
    ========================================================================== */
@@ -259,7 +261,7 @@
     // 바닥
     ctx.font = font(600, 9);
     ctx.fillStyle = 'rgba(217,196,180,.55)';
-    ctx.fillText('cafe.leeu 추출 도우미 · v3.4', 22, 250);
+    ctx.fillText('cafe.leeu 추출 도우미 · v3.5', 22, 250);
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(217,196,180,.5)';
     ctx.fillText(idle ? '준비' : done ? '완료' : '작은 창', W - 22, 250);
@@ -297,8 +299,21 @@
     return /iP(hone|ad|od)/.test(navigator.userAgent) ||
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
+  // 홈 화면에 설치한 웹앱(standalone)인지 — iOS 는 이 컨테이너에서 PiP 를 막는다.
+  function isStandalone() {
+    try {
+      if (window.navigator.standalone === true) return true;
+      if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+    } catch (e) { /* 판별 불가 */ }
+    return false;
+  }
+  function isIosStandalone() {
+    return isIos() && isStandalone();
+  }
+  const TEXT_IOS_STANDALONE =
+    '아이폰 홈 화면 웹앱에서는 iOS 정책상 작은 창(PiP)이 지원되지 않아요. Safari 브라우저에서 열면 사용할 수 있으며, 타이머는 이 화면에서 그대로 이어집니다.';
   const TEXT_UNSUPPORTED =
-    '이 브라우저에서는 작은 창(PiP)을 지원하지 않아요. Chrome·Safari에서 열거나 홈 화면에 설치한 뒤 다시 눌러 주세요. 타이머는 이 화면에서 그대로 이어집니다.';
+    '이 브라우저에서는 작은 창(PiP)을 지원하지 않아요. Safari나 Chrome에서 열어 주세요. 타이머는 이 화면에서 그대로 이어집니다.';
   const TEXT_INAPP =
     () => inAppName() + ' 안에서는 작은 창을 열 수 없어요. 오른쪽 위 ··· → "다른 브라우저로 열기"(Safari·Chrome)로 연 뒤 다시 눌러 주세요.';
   const TEXT_PLAY =
@@ -382,7 +397,7 @@
             '<span id="nextline">추출 시작을 누르면 실시간으로 갱신돼요</span>' +
           '</div>' +
         '</div>' +
-        '<div class="foot"><span>클릭하면 본 화면으로 돌아갑니다</span><span>v3.4</span></div>' +
+        '<div class="foot"><span>클릭하면 본 화면으로 돌아갑니다</span><span>v3.5</span></div>' +
       '</div>';
     const q = id => doc.getElementById(id);
     return { doc, dial: q('dial'), pill: q('pill'), clock: q('clock'), round: q('round'), cap: q('cap'), cue: q('cue'), amount: q('amount'), target: q('target'), fill: q('fill'), nextline: q('nextline') };
@@ -548,7 +563,36 @@
     }
   }
 
-  function openVideoPip() {
+  // 영상이 그려질 준비(readyState ≥ 2)를 기다린다 — Safari 는 준비 전 요청을 조용히 무시한다.
+  function videoReady(video, timeout) {
+    if (video.readyState >= 2) return Promise.resolve();
+    return new Promise(resolve => {
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        video.removeEventListener('loadeddata', finish);
+        video.removeEventListener('canplay', finish);
+        resolve();
+      };
+      const timer = setTimeout(finish, timeout || 1200);
+      video.addEventListener('loadeddata', finish);
+      video.addEventListener('canplay', finish);
+    });
+  }
+  async function webkitPipWhenReady(video) {
+    if (typeof video.webkitSetPresentationMode !== 'function') return false;
+    await videoReady(video, 900);
+    if (tryWebkitPip(video)) return true;
+    if (video.readyState >= 2) {
+      await new Promise(r => setTimeout(r, 180));
+      if (tryWebkitPip(video)) return true;
+    }
+    return false;
+  }
+
+  async function openVideoPip() {
     const vp = ensureVideo();
     draw(vp.ctx, currentState());
     const listen = () => {
@@ -558,26 +602,29 @@
     listen();
     let playResult = null;
     try { playResult = vp.video.play(); } catch (e) { playResult = Promise.reject(e); }
+    const playSettled = Promise.resolve(playResult).catch(() => {});
+    const playStarted = Promise.race([playSettled, new Promise(r => setTimeout(r, 700))]);
 
     if (document.pictureInPictureEnabled && typeof vp.video.requestPictureInPicture === 'function') {
-      let request;
-      try { request = vp.video.requestPictureInPicture(); } catch (e) { request = Promise.reject(e); }
-      return Promise.resolve(request).then(() => {
+      try {
+        await vp.video.requestPictureInPicture();
         startVideoLoop(vp);
         mark(true);
-        if (playResult && playResult.catch) playResult.catch(() => {});
-      }).catch(error => {
-        if (tryWebkitPip(vp.video)) { startVideoLoop(vp); mark(true); return; }
-        // 재생이 막힌 것이면 한 번 더 눌러 달라고 안내
-        return Promise.resolve(playResult).catch(() => {}).then(() => { throw error; });
-      });
+        return;
+      } catch (error) {
+        // Safari 는 재생이 시작된 뒤에 열어야 한다 (준비 전 요청은 조용히 실패).
+        await playStarted;
+        if (await webkitPipWhenReady(vp.video)) { startVideoLoop(vp); mark(true); return; }
+        throw error;
+      }
     }
-    if (tryWebkitPip(vp.video)) {
+    await playStarted;
+    if (await webkitPipWhenReady(vp.video)) {
       startVideoLoop(vp);
       mark(true);
-      return Promise.resolve(playResult).catch(() => {});
+      return;
     }
-    return Promise.resolve(playResult).catch(() => {}).then(() => { throw new Error('unsupported'); });
+    throw new Error('unsupported');
   }
 
   /* ---------- 클릭 ------------------------------------------------------ */
@@ -589,6 +636,8 @@
     hideNote();
     try {
       if (htmlPip) { closeHtmlPip(); return; }
+      // iOS 홈 화면 웹앱은 iOS 정책상 PiP 가 열리지 않는다 — 설치를 권하지 않고 이유를 짚어 준다.
+      if (isIosStandalone() && !document.pictureInPictureElement) { showNote(TEXT_IOS_STANDALONE); return; }
       if (document.pictureInPictureElement) {
         try { await document.exitPictureInPicture(); } catch (e) { /* 무시 */ }
         teardownVideo();
@@ -602,7 +651,8 @@
         await openVideoPip();
       } catch (error) {
         teardownVideo();
-        if (isInApp()) showNote(TEXT_INAPP());
+        if (isIosStandalone()) showNote(TEXT_IOS_STANDALONE);
+        else if (isInApp()) showNote(TEXT_INAPP());
         else if (error && (error.name === 'NotSupportedError' || error.name === 'NotAllowedError')) showNote(TEXT_PLAY);
         else showNote(TEXT_UNSUPPORTED);
       }
@@ -638,6 +688,8 @@
         canvasStream: !!document.createElement('canvas').captureStream,
         inApp: isInApp(),
         ios: isIos(),
+        standalone: isStandalone(),
+        iosStandalone: isIosStandalone(),
       };
     },
     render(target) {
