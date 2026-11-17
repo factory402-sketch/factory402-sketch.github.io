@@ -149,3 +149,225 @@
   .timer-actions #start { min-height: 42px; }
   .timer-actions { margin-top: 7px; }
 }
+
+/* ==========================================================================
+   v3.3 · 모바일 가로 회전(짧은 높이) — 스크롤 없이 한 화면
+   대상: 844×390, 812×375, 667×375, 932×430 등 orientation: landscape.
+   구성: 위에서 두 줄(브랜드·소식·도구 아이콘 / 모드 탭·푸어 스테퍼)
+         + 본문 2단(좌 입력 카드 + 도구 4칸, 우 추출 결과 + 타이머)
+         + 맨 아래 검색 한 줄. 모든 높이는 dvh에 비례해 함께 줄어듭니다.
+   ========================================================================== */
+@media (orientation: landscape) and (max-height: 560px) {
+  html, body { height: 100%; }
+
+  main {
+    width: min(100%, 1000px);
+    height: 100dvh;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "top    top"
+      "modes  modes"
+      "fields result"
+      "fields timer"
+      "tools  search";
+    align-items: stretch;
+    gap: clamp(3px, .9dvh, 6px) clamp(5px, .8vw, 9px);
+    padding: clamp(4px, 1.1dvh, 7px) clamp(7px, 1.4vw, 13px)
+             max(clamp(4px, 1.1dvh, 7px), env(safe-area-inset-bottom));
+    overflow: hidden;
+  }
+
+  main > * { min-width: 0; flex: none; }
+
+  /* 바깥으로 흘러나오면 안 되는 알림 줄은 화면 위에 잠깐 띄웁니다. */
+  main > .brewError:not(:empty),
+  main > .current-share-result:has(span:not(:empty), input:not([hidden])) {
+    position: fixed;
+    left: 8px; right: 8px; bottom: calc(6px + env(safe-area-inset-bottom));
+    z-index: 30;
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--line-strong);
+    background: #fffdf7;
+    box-shadow: 0 10px 26px -12px rgba(18, 54, 45, .7);
+  }
+
+  /* 헤더 한 줄: 브랜드 · 버전 · 소식 · 원두 · 아이콘 ----------------------- */
+  .main-top {
+    grid-area: top;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  /* header를 통째로 풀어 브랜드 → 소식·원두 → 아이콘 순으로 한 줄에 놓는다. */
+  header { display: contents; }
+  .brand { order: 1; flex: none; gap: 6px; min-width: auto; }
+  .brand-mark { width: 24px; height: 24px; border-radius: 8px; }
+  .brand-mark svg { width: 13px; height: 13px; }
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-size: 13.5px;
+    line-height: 1.2;
+  }
+  .logo > span { font-size: 8.5px; letter-spacing: .07em; }
+  .release-version { font-size: 8px; letter-spacing: .03em; }
+  .header-actions { order: 3; gap: 4px; }
+  main header .icon { width: 26px; height: 26px; min-height: 26px; padding: 0; border-radius: 8px; }
+  main header .icon .btn-icon { width: 14px; height: 14px; }
+
+  .main-links { order: 2; display: flex; flex: 1 1 auto; justify-content: flex-end; gap: 5px; }
+  .news-banner { flex: 1 1 auto; min-height: 26px; padding: 0 7px 0 6px; gap: 6px; border-radius: 8px; }
+  .news-badge { padding: 2px 5px; font-size: 8px; border-radius: 5px; }
+  .news-headline { font-size: 9.5px; }
+  .shop-entry { min-height: 26px; height: 26px; padding: 0 8px; gap: 3px; font-size: 9px; border-radius: 8px; }
+  .shop-entry .btn-icon { width: 12px; height: 12px; }
+
+  /* 둘째 줄: 모드 탭 · 푸어 횟수 스테퍼 ------------------------------------ */
+  .mode-bar { grid-area: modes; justify-content: space-between; gap: 6px; }
+  .mode-bar .tabs { flex: 0 1 auto; max-width: 62%; padding: 2px; border-radius: 9px; gap: 3px; }
+  .tabs button { min-height: 24px; padding: 0 10px; font-size: 10px; border-radius: 7px; }
+  .pour-count { padding: 0 3px 0 6px; gap: 2px; border-radius: 9px; }
+  .pour-count-label { margin-inline-end: 1px; font-size: 8px; }
+  .pour-count button { width: 21px; height: 21px; font-size: 12px; border-radius: 6px; }
+  .pour-count #pourCountValue { min-width: 18px; font-size: 10.5px; }
+
+  /* 입력 카드 — 좌측 컬럼 전체 높이, 원두·물을 위아래로 크게 ---------------- */
+  main > section.fields {
+    grid-area: fields;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    padding: clamp(6px, 2dvh, 12px) clamp(9px, 1.3vw, 15px);
+    gap: clamp(6px, 4.4dvh, 22px) clamp(8px, 1.2vw, 14px);
+    border-radius: 14px;
+  }
+  section.fields::before { inset: 0 10px auto; }
+  .label { font-size: 9.5px; }
+  .label-code { font-size: 7.5px; letter-spacing: .12em; }
+  .inputwrap { margin-top: 0; }
+  .inputwrap input { font-size: clamp(22px, 8.4dvh, 38px); padding: 0 0 2px; }
+  .unit { font-size: 10px; }
+  .prefix { font-size: 11px; }
+  .presets { gap: 4px; margin-top: clamp(3px, 1.4dvh, 9px); }
+  .presets button { min-height: clamp(20px, 6dvh, 32px); padding: 2px 0; font-size: clamp(8px, 2.2dvh, 11px); }
+  .error { font-size: 9px; }
+
+  /* 추출 결과 — 우측 위 한 줄 ---------------------------------------------- */
+  .result {
+    grid-area: result;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 1px;
+    padding: clamp(3px, 1.2dvh, 7px) clamp(7px, 1vw, 12px);
+    border-radius: 14px;
+  }
+  .result-main { grid-column: 1; display: flex; align-items: baseline; gap: 6px; }
+  .result-label { font-size: 9px; }
+  .result-value { font-size: clamp(18px, 5.6dvh, 27px); }
+  .result-explain { grid-column: 1; font-size: 9px; line-height: 1.35; min-height: 0; }
+  .result-actions { grid-column: 2; grid-row: 1 / span 2; display: flex; gap: 4px; }
+  .result-actions .icon {
+    min-height: clamp(24px, 7dvh, 34px);
+    padding: 0 clamp(5px, .8vw, 9px);
+    gap: 3px;
+    font-size: 9px;
+    border-radius: 8px;
+  }
+  .result-actions .icon .btn-icon { width: 12px; height: 12px; }
+
+  /* 타이머 — 우측 남는 높이 전부 ------------------------------------------ */
+  .timer {
+    grid-area: timer;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(5px, 1.6dvh, 10px) clamp(8px, 1.1vw, 13px);
+    border-radius: 16px;
+  }
+  .timerhead { font-size: 8px; letter-spacing: .12em; }
+  .timerhead span::before { width: 4px; height: 4px; margin-right: 5px; box-shadow: 0 0 0 2px rgba(196, 155, 85, .18); }
+  .timer-body {
+    flex: 1 1 auto;
+    gap: clamp(6px, 1vw, 11px);
+    margin-top: 2px;
+    align-items: center;
+    align-content: center;
+  }
+  .brew-dial { width: clamp(60px, 20dvh, 100px); }
+  .clock { font-size: clamp(14px, 4.4dvh, 22px); }
+  #brewRound { font-size: 8px; }
+  .timer-status { padding-inline-start: 8px; }
+  .cue { font-size: clamp(12px, 3.6dvh, 17px); line-height: 1.3; }
+  #brewPour { font-size: clamp(14px, 4.4dvh, 21px); margin-top: 0; }
+  #brewTemperature { margin-top: 0; font-size: 8.5px; }
+  .next { margin-top: 2px; font-size: clamp(8.5px, 2.4dvh, 11px); line-height: 1.35; }
+  .timer-actions { flex: none; margin-top: clamp(3px, 1.2dvh, 7px); gap: 4px; }
+  .timer-actions #start {
+    min-height: clamp(26px, 8dvh, 40px);
+    padding: 3px 8px;
+    font-size: clamp(11px, 3.2dvh, 15px);
+    border-radius: 10px;
+  }
+  .timer-actions .timer-secondary { gap: 4px; }
+  .timer-secondary button {
+    min-height: clamp(20px, 6.4dvh, 30px);
+    padding: 0 3px;
+    gap: 3px;
+    font-size: clamp(8px, 2.2dvh, 10px);
+    border-radius: 8px;
+  }
+  .timer-secondary button svg { width: 11px; height: 11px; }
+
+  /* 도구 4칸 — 좌측 컬럼 아래 -------------------------------------------- */
+  .bottom { grid-area: tools; align-items: stretch; gap: 4px; margin: 0; }
+  .bottom button {
+    flex-direction: row;
+    gap: 3px;
+    min-width: 0;
+    padding: 3px 2px;
+    font-size: clamp(7.5px, 2.05dvh, 10px);
+    border-radius: 9px;
+    white-space: normal;
+    word-break: keep-all;
+    text-align: center;
+    line-height: 1.15;
+  }
+  .bottom .button-icon { width: 11px; height: 11px; padding: 2px; border-radius: 5px; }
+
+  /* 레시피 검색 — 우측 컬럼 맨 아래 한 줄 --------------------------------- */
+  .recipe-search {
+    grid-area: search;
+    display: grid;
+    align-content: center;
+    padding: 3px 6px;
+    border-radius: 10px;
+  }
+  .recipe-search label {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .recipe-search-bar { gap: 4px; }
+  .recipe-search-bar input { height: clamp(22px, 6.6dvh, 30px); padding: 0 8px; font-size: 11px; border-radius: 8px; }
+  .recipe-search-bar button { height: clamp(22px, 6.6dvh, 30px); padding: 0 9px; font-size: 9px; border-radius: 8px; }
+  #recipeSearchStatus { margin-top: 1px; font-size: 8px; line-height: 1.25; }
+  #recipeSearchResults { max-height: 24dvh; margin-top: 3px; }
+}
+
+/* 가로 회전 + 좁은 폭(667×375 등): 도구 버튼 글자를 한 줄로 두기 위해
+   아이콘을 글자 위로 올리고 좌우 여백을 조금 더 준다. */
+@media (orientation: landscape) and (max-height: 560px) and (max-width: 720px) {
+  .bottom button {
+    flex-direction: column;
+    gap: 1px;
+    font-size: clamp(8px, 2.3dvh, 9.5px);
+  }
+  .bottom .button-icon { width: 10px; height: 10px; padding: 2px; }
+}
