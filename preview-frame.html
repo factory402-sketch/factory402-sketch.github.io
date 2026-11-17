@@ -13,6 +13,9 @@
   const frame = document.getElementById('frame');
   frame.width = Number(params.get('w') || 390);
   frame.height = Number(params.get('h') || 844);
+  frame.addEventListener('load', () => {
+    try { frame.contentDocument.documentElement.style.overflow = 'hidden'; } catch (error) {}
+  });
 </script>
 </body>
 </html>
