@@ -30,8 +30,10 @@
     await new Promise(resolve=>setTimeout(resolve,500));
     if(token!==session)return;
     try{
-      const ok=GrindUI.captureFrame(frame);stop();start.textContent='다시 촬영';
-      if(!ok)el('grindStatus').textContent+=' 가루를 겹치지 않게 놓고 다시 촬영해 주세요.';
+      // 고해상도 프레임에서 QR을 놓치면 미리보기(768x960) 프레임으로 한 번 더 읽는다.
+      const ok=GrindUI.captureFrame(frame)||(!!candidate&&GrindUI.captureFrame(probe));
+      stop();start.textContent='다시 촬영';
+      if(!ok&&!/QR/.test(el('grindStatus').textContent))el('grindStatus').textContent+=' 가루를 겹치지 않게 놓고 다시 촬영해 주세요.';
       (ok?el('grindResult'):el('grindStatus')).scrollIntoView({block:'nearest'});
     }catch{stop();el('grindStatus').textContent='사진을 분석하지 못했어요. 다시 촬영해 주세요.';}
   }

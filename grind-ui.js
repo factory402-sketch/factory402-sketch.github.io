@@ -71,6 +71,37 @@ const GrindUI = (() => {
     }catch {if(ticket===loadNumber)status('사진을 읽지 못했어요. JPG 또는 PNG로 다시 선택해 주세요.');}
     finally{URL.revokeObjectURL(url);}
   };
+  // A 2048px capture keeps every print dot, so a QR ring can break into pieces there
+  // while it was steady in the 768px preview. If the original frame is not read, look
+  // again at preview resolution and map the region back: the pixels measured stay full size.
+  function locateFrame(recipe){
+    const W=original.width,H=original.height;
+    try{
+      return GrindMarker.locate(source.getImageData(0,0,W,H),recipe);
+    }catch(error){
+      const k=Math.min(1,768/Math.max(W,H));
+      if(k>.72)throw error;
+      const w=Math.max(1,Math.round(W*k)),h=Math.max(1,Math.round(H*k));
+      const small=document.createElement('canvas');
+      small.width=w;small.height=h;
+      const ctx=small.getContext('2d',{willReadFrequently:true});
+      ctx.imageSmoothingQuality='high';
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(original,0,0,w,h);
+      let found;
+      try{
+        found=GrindMarker.locate(ctx.getImageData(0,0,w,h),recipe);
+      }catch{throw error;}
+      const back=value=>value/k;
+      const x=Math.max(0,Math.round(back(found.x))),y=Math.max(0,Math.round(back(found.y)));
+      const cw=Math.min(W-x,Math.round(back(found.w))),ch=Math.min(H-y,Math.round(back(found.h)));
+      if(cw<40||ch<40)throw error;
+      const {marker}=found;
+      return {
+        marker:{left:back(marker.left),top:back(marker.top),w:back(marker.w),h:back(marker.h),side:back(marker.side)},
+        x,y,w:cw,h:ch,mmPerPixel:found.mmPerPixel*k
+      };
+    }
+  }
   function readFrame(image,width,height){
       const scale=Math.min(1,2048/Math.max(width,height));
       canvas.width=original.width=Math.max(1,Math.round(width*scale));
@@ -78,7 +109,7 @@ const GrindUI = (() => {
       source.fillStyle='#fff';source.fillRect(0,0,original.width,original.height);source.drawImage(image,0,0,original.width,original.height);
       el('grindControls').hidden=false;redraw();
       try{
-        const {marker,x,y,w,h,mmPerPixel}=GrindMarker.locate(source.getImageData(0,0,original.width,original.height),cardMode());
+        const {marker,x,y,w,h,mmPerPixel}=locateFrame(cardMode());
         ctx.strokeStyle='#f39828';ctx.strokeRect(marker.left,marker.top,marker.w,marker.h);
         ctx.strokeStyle='#00966c';ctx.strokeRect(x,y,w,h);
         analyze(x,y,w,h,mmPerPixel);
