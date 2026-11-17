@@ -754,6 +754,32 @@ dialog::backdrop { background: var(--backdrop); }
   box-shadow: 0 22px 40px -24px var(--green-deep), inset 0 1px 0 rgba(255, 255, 255, .10);
 }
 
+/* 12-2-1. v3.6 · iOS 홈 화면 웹앱 안내의 버튼 (에스프레소 & 오트) ------- */
+.pip-status.is-actionable {
+  border-color: rgba(244, 208, 166, .55);
+  background: radial-gradient(120% 150% at 100% -30%, rgba(205, 127, 62, .30), rgba(205, 127, 62, 0) 62%),
+    linear-gradient(180deg, var(--timer-2) 0%, #241511 100%);
+  box-shadow: 0 26px 46px -22px rgba(13, 7, 5, .95),
+    0 0 0 1px rgba(244, 208, 166, .1), inset 0 1px 0 rgba(255, 243, 233, .12);
+}
+
+.pip-status-btn { border-color: rgba(244, 208, 166, .40); }
+
+.pip-status-btn.primary {
+  border-color: var(--dial-current);
+  background: linear-gradient(180deg, var(--dial-current) 0%, #E4B489 100%);
+  color: #241511;
+  box-shadow: 0 10px 18px -14px rgba(244, 208, 166, 1), inset 0 1px 0 rgba(255, 255, 255, .55);
+}
+
+.pip-status-btn.is-done {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, var(--dial-current) 0%, var(--gold) 100%);
+  color: #241511;
+}
+
+.pip-status-close { color: rgba(217, 196, 180, .82); }
+
 /* 12-3. 분쇄도 참고 가이드 (분쇄도 비교 다이얼로그) ---------------------- */
 .grind-guide {
   margin: 14px 0 4px;

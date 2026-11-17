@@ -1,5 +1,5 @@
 /* ==========================================================================
-   카페이유 · 추출 도우미 — 추출 타이머 작은 창(PiP)  v3.5
+   카페이유 · 추출 도우미 — 추출 타이머 작은 창(PiP)  v3.6
    --------------------------------------------------------------------------
    · 오프스크린 Canvas(480×270, ☕ 에스프레소 & 오트)에 실시간 추출 상태를 그린다.
      경과 시간 · 현재 푸어 단계 · 목표 누적 물량 · 다음 푸어 카운트다운.
@@ -10,6 +10,9 @@
    · 인앱 브라우저 등 미지원 환경에서는 안내 문구만 띄우고 본 화면은 그대로 둔다.
    · iOS 홈 화면 웹앱(standalone)은 iOS 정책상 PiP 자체가 열리지 않으므로,
      «홈 화면에 설치한 뒤»를 권하지 않고 Safari 로 여는 방법을 안내한다.
+     그 안내에는 「Safari에서 열기」(지금 레시피 그대로)와 「주소 복사」 버튼을 함께 둔다.
+   · iOS standalone 에서 같은 주소의 링크(target=_blank)는 앱 안의 브라우저로 열려 PiP 를
+     쓸 수 없으므로, 「Safari에서 열기」는 iOS 17+ 의 x-safari- 스킴으로 Safari 를 연다.
    · PiP 는 화면만 복제한다 — 본 화면의 타이머 상태는 건드리지 않으므로
      PiP 를 닫으면(lavepictureinpicture) 그대로 이어진다.
    ========================================================================== */
@@ -261,7 +264,7 @@
     // 바닥
     ctx.font = font(600, 9);
     ctx.fillStyle = 'rgba(217,196,180,.55)';
-    ctx.fillText('cafe.leeu 추출 도우미 · v3.5', 22, 250);
+    ctx.fillText('cafe.leeu 추출 도우미 · v3.6', 22, 250);
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(217,196,180,.5)';
     ctx.fillText(idle ? '준비' : done ? '완료' : '작은 창', W - 22, 250);
@@ -270,19 +273,119 @@
   }
 
   /* ---------- 안내 문구 ------------------------------------------------- */
+  const SITE_ROOT = 'https://factory402-sketch.github.io/';
   let noteTimer = null;
-  function showNote(message) {
+  let noteInteractive = false;
+  let noteShownAt = 0;
+
+  // 지금 보고 있는 주소(레시피 #recipe=… 포함). 배포 주소가 아니면 기본 주소로.
+  function pageUrl() {
+    try {
+      if (/^https?:$/.test(location.protocol) && location.href) return location.href;
+    } catch (e) { /* 주소를 못 읽는 환경 */ }
+    return SITE_ROOT;
+  }
+  // iOS standalone 에서는 같은 주소의 링크를 눌러도 앱 안의 브라우저가 열린다(PiP 불가).
+  // iOS 17+ 에서는 x-safari- 스킴이 Safari 앱을 열어 준다.
+  function safariUrl(url) {
+    return isIos() ? 'x-safari-' + url : url;
+  }
+  async function copyText(text) {
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (e) { /* 아래 textarea 방식으로 */ }
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.setAttribute('aria-hidden', 'true');
+    area.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:0;opacity:0;';
+    document.body.appendChild(area);
+    try {
+      area.select();
+      area.setSelectionRange(0, area.value.length);
+      return document.execCommand('copy') !== false;
+    } catch (e) {
+      return false;
+    } finally {
+      area.remove();
+    }
+  }
+  function buildActions() {
+    const url = pageUrl();
+    const row = document.createElement('div');
+    row.className = 'pip-status-actions';
+
+    const safari = document.createElement('a');
+    safari.className = 'pip-status-btn primary';
+    safari.href = safariUrl(url);
+    safari.dataset.url = url;
+    safari.target = '_blank';
+    safari.rel = 'noopener noreferrer';
+    safari.textContent = 'Safari에서 열기';
+    row.appendChild(safari);
+
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'pip-status-btn';
+    copy.textContent = '주소 복사';
+    copy.addEventListener('click', async () => {
+      const ok = await copyText(url);
+      copy.textContent = ok ? '복사됨 ✓' : '복사 실패';
+      copy.classList.toggle('is-done', ok);
+      clearTimeout(copy.copiedTimer);
+      copy.copiedTimer = setTimeout(() => {
+        copy.textContent = '주소 복사';
+        copy.classList.remove('is-done');
+      }, 2000);
+    });
+    row.appendChild(copy);
+    return row;
+  }
+  function showNote(message, options) {
     if (!note) return;
-    note.textContent = message;
+    const actions = !!(options && options.actions);
+    note.textContent = '';
+    const text = document.createElement('span');
+    text.className = 'pip-status-msg';
+    text.textContent = message;
+    note.appendChild(text);
+    if (actions) {
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'pip-status-close';
+      close.setAttribute('aria-label', '안내 닫기');
+      close.textContent = '×';
+      close.addEventListener('click', hideNote);
+      note.appendChild(close);
+      note.appendChild(buildActions());
+    }
+    note.dataset.actions = actions ? 'true' : 'false';
     note.hidden = false;
+    noteInteractive = actions;
+    noteShownAt = Date.now();
     clearTimeout(noteTimer);
-    noteTimer = setTimeout(() => { note.hidden = true; }, 9000);
+    // 버튼이 있는 안내는 사용자가 닫을 때까지 둔다. 버튼이 없으면 예전처럼 9초.
+    if (!actions) noteTimer = setTimeout(hideNote, 9000);
   }
   function hideNote() {
     if (!note) return;
     note.hidden = true;
+    noteInteractive = false;
     clearTimeout(noteTimer);
   }
+  // 버튼이 있는 안내는 바깥을 누르거나 Esc 로도 닫힌다 (연 그 클릭은 무시).
+  document.addEventListener('click', event => {
+    if (!note || note.hidden || !noteInteractive) return;
+    if (Date.now() - noteShownAt < 250) return;
+    if (note.contains(event.target)) return;
+    hideNote();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') hideNote();
+  });
   function inAppName() {
     const ua = navigator.userAgent;
     if (/KAKAOTALK/i.test(ua)) return '카카오톡';
@@ -397,7 +500,7 @@
             '<span id="nextline">추출 시작을 누르면 실시간으로 갱신돼요</span>' +
           '</div>' +
         '</div>' +
-        '<div class="foot"><span>클릭하면 본 화면으로 돌아갑니다</span><span>v3.5</span></div>' +
+        '<div class="foot"><span>클릭하면 본 화면으로 돌아갑니다</span><span>v3.6</span></div>' +
       '</div>';
     const q = id => doc.getElementById(id);
     return { doc, dial: q('dial'), pill: q('pill'), clock: q('clock'), round: q('round'), cap: q('cap'), cue: q('cue'), amount: q('amount'), target: q('target'), fill: q('fill'), nextline: q('nextline') };
@@ -633,11 +736,16 @@
     if (event && event.preventDefault) event.preventDefault();
     if (busy) return;
     busy = true;
+    // 버튼이 있는 안내가 떠 있으면 「작은 창」을 다시 누르는 것으로 닫는다.
+    if (note && !note.hidden && noteInteractive) { hideNote(); busy = false; return; }
     hideNote();
     try {
       if (htmlPip) { closeHtmlPip(); return; }
       // iOS 홈 화면 웹앱은 iOS 정책상 PiP 가 열리지 않는다 — 설치를 권하지 않고 이유를 짚어 준다.
-      if (isIosStandalone() && !document.pictureInPictureElement) { showNote(TEXT_IOS_STANDALONE); return; }
+      if (isIosStandalone() && !document.pictureInPictureElement) {
+        showNote(TEXT_IOS_STANDALONE, { actions: true });
+        return;
+      }
       if (document.pictureInPictureElement) {
         try { await document.exitPictureInPicture(); } catch (e) { /* 무시 */ }
         teardownVideo();
@@ -651,7 +759,7 @@
         await openVideoPip();
       } catch (error) {
         teardownVideo();
-        if (isIosStandalone()) showNote(TEXT_IOS_STANDALONE);
+        if (isIosStandalone()) showNote(TEXT_IOS_STANDALONE, { actions: true });
         else if (isInApp()) showNote(TEXT_INAPP());
         else if (error && (error.name === 'NotSupportedError' || error.name === 'NotAllowedError')) showNote(TEXT_PLAY);
         else showNote(TEXT_UNSUPPORTED);
