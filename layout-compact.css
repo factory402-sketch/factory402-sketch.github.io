@@ -371,3 +371,16 @@
   }
   .bottom .button-icon { width: 10px; height: 10px; padding: 2px; }
 }
+
+/* 아주 좁은 가로(≤540px, 예: 480×320 창) — 브랜드 부제와 소식 배지를 접어
+   헤더 한 줄이 화면 밖으로 밀리지 않게 한다. */
+@media (orientation: landscape) and (max-height: 560px) and (max-width: 540px) {
+  .logo > span { display: none; }
+  .news-badge { display: none; }
+  .news-banner { padding-inline: 8px; }
+  .main-links { min-width: 0; }
+  .shop-entry span { display: none; }
+  .shop-entry { padding: 0 7px; }
+  .result-actions .icon span { display: none; }
+  .result-actions .icon { padding: 0 6px; }
+}
