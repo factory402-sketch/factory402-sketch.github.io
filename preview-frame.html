@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<title>미리보기</title>
+<style>html,body{margin:0;padding:0;background:#ffffff}iframe{border:0;display:block}</style>
+</head>
+<body>
+<iframe id="frame" src="./stats/" title="미리보기"></iframe>
+<script>
+  const params = new URLSearchParams(location.search);
+  const frame = document.getElementById('frame');
+  frame.width = Number(params.get('w') || 390);
+  frame.height = Number(params.get('h') || 844);
+</script>
+</body>
+</html>
