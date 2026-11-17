@@ -1,12 +1,48 @@
 (() => {
   const el=id=>document.getElementById(id);
   const start=el('guideStart'),live=el('guideLive'),video=el('guideVideo'),hint=el('guideHint'),dialog=el('grindDialog');
+  const level=el('guideLevel'),levelBubble=level?.querySelector('.guide-level-bubble'),levelReadout=level?.querySelector('.guide-level-readout');
   const probe=document.createElement('canvas');
   probe.width=768;probe.height=960;
   const context=probe.getContext('2d',{willReadFrequently:true});
+  const LEVEL_LIMIT=3.5,LEVEL_SPAN=20,LEVEL_TRAVEL=16;
   let stream=null,session=0,timer=0,candidate=null,busy=false;
+  let sensorBound=false,sensorActive=false,tilt=null,isLevel=true,beta0=0,gamma0=0;
   function state(name,text,progress=0){live.dataset.state=name;hint.textContent=text;el('guideProgress').value=progress;}
+  // 원형 수평계: 센서 값이 없으면 'off'(흐린 한 점), 수평이면 초록, 기울면 앰버.
+  function paintLevel(){
+    if(!level)return;
+    const on=sensorActive&&tilt!=null;
+    level.dataset.level=on?(isLevel?'level':'tilt'):'off';
+    if(levelReadout)levelReadout.textContent=on?(isLevel?'수평':tilt.toFixed(1)+'°'):'—';
+    if(!levelBubble)return;
+    if(!on){levelBubble.style.transform='translate(-50%,-50%)';return;}
+    const unit=(Math.min(1,tilt/LEVEL_SPAN)*LEVEL_TRAVEL)/(tilt>0.01?tilt:1);
+    levelBubble.style.transform='translate(calc(-50% + '+(gamma0*unit).toFixed(1)+'px), calc(-50% + '+(beta0*unit).toFixed(1)+'px))';
+  }
+  function onTilt(event){
+    const beta=event?.beta,gamma=event?.gamma;
+    if(typeof beta!=='number'||typeof gamma!=='number'||!Number.isFinite(beta)||!Number.isFinite(gamma))return;
+sensorActive=true;beta0=beta;gamma0=gamma;tilt=Math.hypot(beta,gamma);isLevel=tilt<=LEVEL_LIMIT;paintLevel();
+  }
+  function bindTilt(){
+    if(sensorBound)return;
+    window.addEventListener('deviceorientation',onTilt);sensorBound=true;
+  }
+  function unbindTilt(){
+    if(sensorBound)window.removeEventListener('deviceorientation',onTilt);
+    sensorBound=false;sensorActive=false;tilt=null;isLevel=true;beta0=0;gamma0=0;paintLevel();
+  }
+  // iOS 13+ Safari는 사용자 제스처 안에서만 권한을 물을 수 있다. 거부·미지원이어도 촬영은 계속된다.
+  async function requestTilt(){
+    try{
+      if(typeof DeviceOrientationEvent==='undefined')return;
+      if(typeof DeviceOrientationEvent.requestPermission==='function')await DeviceOrientationEvent.requestPermission();
+      bindTilt();
+    }catch{}
+  }
   function stop(){
+    unbindTilt();
     session++;clearTimeout(timer);stream?.getTracks().forEach(track=>track.stop());
     stream=null;video.srcObject=null;live.hidden=true;candidate=null;busy=false;start.disabled=false;
     el('guideSnap').disabled=false;dialog.classList.remove('camera-active');live.dataset.state='';
@@ -40,6 +76,10 @@
   function inspect(token){
     if(token!==session||busy)return;
     try{
+      // 센서가 실제로 값을 보낼 때만 수평을 요구한다(데스크톱·권한 거부는 기존 그대로).
+      if(sensorActive&&!isLevel){
+        candidate=null;state('aligning','폰을 수평으로 맞춰 주세요 ('+(tilt??0).toFixed(1)+'°)');return;
+      }
       let location=null,image=null,problem='';
       try{
         if(video.readyState<2)throw Error();
@@ -86,6 +126,7 @@
   }
   start.onclick=async()=>{
     stop();const token=session;start.disabled=true;
+    await requestTilt();if(token!==session)return;
     try{
       const acquired=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:2560},height:{ideal:1920},aspectRatio:{ideal:4/3}}});
       if(token!==session){acquired.getTracks().forEach(track=>track.stop());return;}

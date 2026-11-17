@@ -1879,6 +1879,81 @@ dialog .fields::before { display: none; }
 
 .guide-frame span { position: absolute; right: -1px; top: -20px; font-size: 10px; color: #fff; }
 
+/* 원형 수평계: 프레임 한가운데의 작은 반투명 오버레이 (센서가 없으면 흐린 한 점) */
+.guide-level {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  pointer-events: none;
+  color: #fff;
+  opacity: .9;
+  transition: opacity .2s ease;
+}
+
+.guide-level-ring {
+  position: absolute;
+  inset: 7px;
+  border: 1.5px solid rgba(255, 255, 255, .7);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 0, 0, .18), rgba(0, 0, 0, 0) 72%);
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.guide-level-cross { position: absolute; left: 50%; top: 50%; background: rgba(255, 255, 255, .38); }
+
+.guide-level-cross-x { width: 34px; height: 1px; margin: -.5px 0 0 -17px; }
+
+.guide-level-cross-y { width: 1px; height: 34px; margin: -17px 0 0 -.5px; }
+
+.guide-level-bubble {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .22), 0 0 6px rgba(0, 0, 0, .4);
+  transform: translate(-50%, -50%);
+  transition: transform .16s ease-out, background-color .18s ease, box-shadow .18s ease;
+}
+
+.guide-level-readout {
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  transform: translateX(-50%);
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .38);
+  font-size: 9.5px;
+  line-height: 1.5;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, .92);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+}
+
+.guide-level[data-level="off"] { opacity: .38; }
+
+.guide-level[data-level="tilt"] .guide-level-ring { border-color: rgba(251, 191, 36, .8); }
+
+.guide-level[data-level="tilt"] .guide-level-bubble { background: #fbbf24; box-shadow: 0 0 0 1px rgba(0, 0, 0, .22), 0 0 8px rgba(251, 191, 36, .85); }
+
+.guide-level[data-level="level"] .guide-level-ring {
+  border-color: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, .6), inset 0 0 6px rgba(34, 197, 94, .25);
+}
+
+.guide-level[data-level="level"] .guide-level-bubble { background: #22c55e; box-shadow: 0 0 0 1px rgba(0, 0, 0, .2), 0 0 9px rgba(34, 197, 94, .9); }
+
+.guide-level[data-level="level"] .guide-level-readout { color: #86efac; }
+
 #guideLive[data-state="ready"] .guide-frame {
   border-color: #8bf0b8;
   box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .5), 0 0 14px #8bf0b8;
