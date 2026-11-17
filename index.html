@@ -36,7 +36,7 @@
             <path d="M4 21h13"/>
           </svg>
         </span>
-        <div class="logo">cafe.leeu <span>추출 도우미</span><small class="release-version">2026.11.17 v3.3</small></div>
+        <div class="logo">cafe.leeu <span>추출 도우미</span><small class="release-version">2026.11.17 v3.4</small></div>
       </div>
       <div class="header-actions">
         <button class="icon install-entry" data-open="installDialog" aria-label="앱 설치 안내">
@@ -191,9 +191,17 @@
           </svg>
           <span>초기화</span>
         </button>
+        <button id="pipTimer" class="timer-pip" type="button" aria-pressed="false" aria-label="추출 타이머를 작은 창(PiP)으로 띄워 다른 앱과 함께 보기" title="작은 창(PiP)으로 띄우기">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2.6" y="4.1" width="18.8" height="15.8" rx="2.9"/>
+            <rect x="11.3" y="11.4" width="7.4" height="5.6" rx="1.5" fill="currentColor" stroke="none"/>
+          </svg>
+          <span>작은 창</span>
+        </button>
       </div>
     </div>
   </section>
+  <p id="pipStatus" class="pip-status" role="status" hidden></p>
   <p id="brewError" class="brewError" role="alert"></p>
 
   <!-- 도구 -->
@@ -490,6 +498,25 @@
     <strong id="grindSize"></strong>
     <p id="grindSpread"></p>
     <p id="grindComparison"></p>
+    <div id="grindGuide" class="grind-guide" aria-labelledby="grindGuideTitle">
+      <div class="gg-head">
+        <h4 id="grindGuideTitle">분쇄 크기 · 추출 도구 가이드</h4>
+        <span id="ggValue" class="gg-value"></span>
+      </div>
+      <div class="gg-scale">
+        <div class="gg-track" role="img" aria-label="200~1700 마이크론 분쇄 크기 눈금">
+          <span class="gg-band" data-band="0"></span>
+          <span class="gg-band" data-band="1"></span>
+          <span class="gg-band" data-band="2"></span>
+          <span class="gg-band" data-band="3"></span>
+          <span class="gg-mark" id="ggMark" hidden><b></b></span>
+        </div>
+        <div class="gg-ticks"><span>200</span><span>700</span><span>1200</span><span>1700 μm</span></div>
+      </div>
+      <ul class="gg-dots" id="ggDots" aria-label="극세분·중세분·중조분·조분 입자 크기 비교"></ul>
+      <ul class="gg-tools" id="ggTools" aria-label="마이크론 구간별 추출 도구"></ul>
+      <p class="gg-foot" id="ggFoot">사진에서 잰 입자 크기 기준의 참고값이에요. 같은 분쇄도라도 그라인더·원두에 따라 조금씩 달라집니다.</p>
+    </div>
     <label class="grind-field">그라인더 설정 메모 (선택)<input id="grindNote" maxlength="60" placeholder="예: 코만단테 C40 24클릭"></label>
     <label class="grind-check"><input type="checkbox" id="grindPhotoOpt"> 기준 입자 사진도 함께 공유</label>
     <p class="hint">공유 선택 시 지정한 가루 영역만 작은 흑백 이미지로 저장되며, 링크를 받은 사람이 볼 수 있습니다.</p>
@@ -510,6 +537,7 @@
 <script src="./pour-temperatures.js"></script>
 <script src="./pour-amounts.js"></script>
 <script src="./brew.js"></script>
+<script src="./pip-timer.js"></script>
 <script src="./pour-count.js"></script>
 <script src="./vendor/qr-encoder.js"></script>
 <script src="./recipe-link.js"></script>

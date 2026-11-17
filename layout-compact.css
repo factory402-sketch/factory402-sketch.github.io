@@ -384,3 +384,31 @@
   .result-actions .icon span { display: none; }
   .result-actions .icon { padding: 0 6px; }
 }
+
+/* ==========================================================================
+   v3.4 · 타이머 액션 줄 4칸 ([전체 순서] [메모] [초기화] [작은 창])
+   버튼이 넷이 되어도 어떤 폭에서도 한 줄에 딱 맞도록, 아이콘·글자·여백을
+   폭에 비례해 조인다. 줄넘침·잘림·가로 스크롤 없이 4칸이 유지된다.
+   ========================================================================== */
+@media (min-height: 521px) {
+  .timer-actions .timer-secondary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .timer-secondary button { white-space: nowrap; letter-spacing: -.01em; }
+}
+
+/* 390보다 좁은 세로(360·320)에서도 «전체 순서»가 한 줄에 남도록 */
+@media (min-height: 521px) and (max-width: 400px) {
+  .timer-actions .timer-secondary { gap: 4px; }
+  .timer-secondary button { padding: 0 2px; gap: 3px; font-size: 9px; }
+  .timer-secondary button svg { width: 13px; height: 13px; }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .timer-actions .timer-secondary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .timer-secondary button { white-space: nowrap; letter-spacing: -.01em; }
+}
+
+/* 667×375처럼 폭이 좁은 가로 — 여백을 1px씩 더 아낀다. */
+@media (orientation: landscape) and (max-height: 560px) and (max-width: 760px) {
+  .timer-actions .timer-secondary { gap: 3px; }
+  .timer-secondary button { padding: 0 2px; gap: 2px; }
+}

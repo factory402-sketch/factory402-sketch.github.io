@@ -143,6 +143,77 @@ const GrindUI = (() => {
       analyze(x,y,w,h,mm/span);
     }catch(error){window.recordFeature?.('grind_fail');measurement=null;status(error.message);}
   };
+  // 분쇄도 참고 가이드 — 실물 스케일 자(200~1700 μm) 기준.
+  // 측정값 위치를 수평 바에 표시하고, 같은 비율의 점·구간별 추출 도구를 하이라이트한다.
+  const guideLow=200, guideHigh=1700;
+  const bands=[
+    {name:'극세분',lo:200,hi:400},
+    {name:'중세분',lo:500,hi:800},
+    {name:'중조분',lo:900,hi:1100},
+    {name:'조분',lo:1200,hi:1700}
+  ];
+  const tools=[
+    {name:'터키쉬 · 에스프레소',lo:200,hi:400},
+    {name:'모카포트',lo:300,hi:600},
+    {name:'사이폰',lo:500,hi:1100,tag:'중세분'},
+    {name:'드립머신 · 아메리카노',lo:600,hi:1200},
+    {name:'핸드드립 (푸어오버)',lo:700,hi:1200,tag:'중조분'},
+    {name:'프렌치프레스',lo:800,hi:1400},
+    {name:'콜드브루',lo:1000,hi:1600,tag:'조분'}
+  ];
+  const at=v=>Math.max(0,Math.min(100,100*(v-guideLow)/(guideHigh-guideLow)));
+  function buildGuide(){
+    const dots=el('ggDots'),list=el('ggTools');
+    if(!dots||!list||dots.dataset.built==='1')return;
+    const bandEls=[...el('grindGuide').querySelectorAll('.gg-band')];
+    bands.forEach((b,k)=>{
+      const band=bandEls[k];
+      if(band){band.style.left=at(b.lo)+'%';band.style.width=(at(b.hi)-at(b.lo))+'%';}
+      const item=document.createElement('li');item.className='gg-dot';
+      const dot=document.createElement('i');
+      const mid=(b.lo+b.hi)/2, size=Math.round(6+32*(mid-guideLow)/(guideHigh-guideLow));
+      dot.style.width=dot.style.height=size+'px';
+      const name=document.createElement('span');name.textContent=b.name;
+      const range=document.createElement('em');range.textContent=b.lo+'–'+b.hi;
+      item.append(dot,name,range);dots.append(item);
+    });
+    tools.forEach(t=>{
+      const item=document.createElement('li');item.className='gg-tool';
+      const name=document.createElement('span');name.className='gg-tool-name';name.textContent=t.name;
+      if(t.tag){const tag=document.createElement('small');tag.textContent=t.tag;name.append(tag);}
+      const range=document.createElement('span');range.className='gg-tool-range';
+      range.textContent=t.lo+'–'+t.hi+' μm';
+      const track=document.createElement('span');track.className='gg-tool-track';
+      const fill=document.createElement('i');
+      fill.style.left=at(t.lo)+'%';fill.style.width=(at(t.hi)-at(t.lo))+'%';
+      track.append(fill);item.append(name,range,track);list.append(item);
+    });
+    dots.dataset.built=list.dataset.built='1';
+  }
+  function showGuide(value){
+    if(!el('grindGuide'))return;
+    buildGuide();
+    const v=Number(value);
+    if(!(v>0)){el('ggValue').textContent='';return;}
+    const capped=Math.round(v);
+    const inside=capped>=guideLow&&capped<=guideHigh;
+    const band=bands.find(b=>capped>=b.lo&&capped<=b.hi);
+    // 기준 구간 사이(빈틈) 값은 좌우 구간을 '~'로 이어 보여 준다. (예: 868 → 중세분~중조분)
+    const lower=[...bands].reverse().find(b=>b.hi<capped);
+    const upper=bands.find(b=>b.lo>capped);
+    const label=band?band.name:(lower&&upper?lower.name+'~'+upper.name:(lower?lower.name:upper?upper.name:''));
+    el('ggValue').textContent=capped+' μm'+(label?' · '+label:inside?'':' · 범위 밖');
+    const mark=el('ggMark');mark.hidden=false;mark.style.left=at(capped)+'%';
+    const lit=band?[band]:[lower,upper].filter(Boolean);
+    el('ggDots').querySelectorAll('.gg-dot').forEach((dot,k)=>{
+      dot.dataset.active=lit.includes(bands[k])?'true':'false';
+    });
+    el('ggTools').querySelectorAll('.gg-tool').forEach((item,k)=>{
+      const t=tools[k];item.dataset.active=capped>=t.lo&&capped<=t.hi?'true':'false';
+    });
+    const foot=el('ggFoot');
+    if(foot)foot.textContent='지금 측정값('+capped+' μm)이 들어가는 구간을 앰버로 표시했어요. 사진에서 잰 입자 크기 기준의 참고값이며, 같은 분쇄도라도 그라인더·원두에 따라 조금씩 달라집니다.';
+  }
   function analyze(x,y,w,h,mmPerPixel){
       const result=GrindAnalysis.measure(source.getImageData(x,y,w,h),mmPerPixel);
       measurement={n:result.n,lo:result.lo,mid:result.mid,hi:result.hi,note:'',metric:result.metric};
@@ -150,7 +221,7 @@ const GrindUI = (() => {
       crop={x,y,w,h};ctx.strokeStyle='#00a878';ctx.lineWidth=1;
       for(const [l,t,cw,ch] of result.marks)ctx.strokeRect(x+l,y+t,cw,ch);
       el('grindSize').textContent='입자 굵기 '+result.mid+' μm';el('grindSpread').textContent=result.n+'개 검출 · 면적 10–90% '+result.lo+'–'+result.hi+' μm';
-      el('grindResult').hidden=false;comparison();window.recordFeature?.('grind_ok');
+      el('grindResult').hidden=false;comparison();showGuide(result.mid);window.recordFeature?.('grind_ok');
   }
   async function withMeasurement(onReady){
     if(!measurement||!crop)return;
@@ -173,5 +244,5 @@ const GrindUI = (() => {
   };
   el('grindAttach').onclick=()=>withMeasurement(async ref=>{await setReference(ref);status('현재 추출 설정에 기준을 적용했어요.');});
   setReference(null);
-  return {captureFrame,setReference,withMeasurement,get reference(){return reference;}};
+  return {captureFrame,setReference,withMeasurement,guide:showGuide,get reference(){return reference;}};
 })();

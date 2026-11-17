@@ -704,3 +704,289 @@ dialog::backdrop { background: var(--backdrop); }
 #brewMemoRecipe { color: var(--green); }
 #brewMemoFeedback { color: var(--green); }
 #recipeDialog { background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%); }
+
+/* ==========================================================================
+   12. v3.4 · 작은 창(PiP) 버튼 · 안내 · 분쇄도 참고 가이드
+   - 타이머 액션 줄의 「작은 창」을 로스트 앰버 포인트로 한눈에 띄게.
+   - PiP 가 열려 있을 때( data-active="true" )는 앰버로 꽉 채워 상태를 알린다.
+   - 화면 아래 잠깐 뜨는 안내(.pip-status)는 타이머 카드와 같은 에스프레소 면.
+   ========================================================================== */
+
+/* 12-1. 타이머 액션 줄 — 작은 창 ---------------------------------------- */
+.timer-actions .timer-pip {
+  border-color: rgba(244, 208, 166, .62);
+  background: linear-gradient(180deg, rgba(244, 208, 166, .26) 0%, rgba(200, 122, 68, .22) 100%);
+  color: var(--dial-current);
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255, 243, 233, .28), 0 8px 16px -14px rgba(244, 208, 166, .95);
+}
+
+.timer-actions .timer-pip svg {
+  stroke-width: 2;
+  opacity: 1;
+}
+
+.timer-actions .timer-pip svg rect + rect {
+  filter: drop-shadow(0 0 3px rgba(244, 208, 166, .7));
+}
+
+.timer-actions .timer-pip:hover {
+  border-color: rgba(244, 208, 166, .82);
+  background: linear-gradient(180deg, rgba(244, 208, 166, .38) 0%, rgba(200, 122, 68, .30) 100%);
+}
+
+.timer-actions .timer-pip[data-active="true"],
+.timer-actions .timer-pip[aria-pressed="true"] {
+  border-color: var(--dial-current);
+  background: linear-gradient(180deg, var(--dial-current) 0%, var(--gold) 100%);
+  color: #241511;
+  box-shadow: 0 0 0 3px rgba(244, 208, 166, .20), 0 10px 20px -14px rgba(244, 208, 166, 1),
+    inset 0 1px 0 rgba(255, 255, 255, .55);
+}
+
+.timer-actions .timer-pip[data-active="true"] svg rect + rect { filter: none; }
+
+/* 12-2. 화면 아래 잠깐 뜨는 안내 ---------------------------------------- */
+.pip-status {
+  border-color: rgba(228, 180, 137, .55);
+  background: linear-gradient(180deg, var(--timer-2) 0%, var(--timer-3) 100%);
+  color: var(--on-deep);
+  box-shadow: 0 22px 40px -24px var(--green-deep), inset 0 1px 0 rgba(255, 255, 255, .10);
+}
+
+/* 12-3. 분쇄도 참고 가이드 (분쇄도 비교 다이얼로그) ---------------------- */
+.grind-guide {
+  margin: 14px 0 4px;
+  padding: 12px 13px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface-3) 100%);
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+.gg-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.gg-head h4 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--green);
+}
+
+.gg-value {
+  flex: none;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+}
+
+/* 12-3a. 200~1700 μm 수평 눈금 바 */
+.gg-scale { margin-top: 15px; }
+
+.gg-track {
+  position: relative;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--green-tint);
+  box-shadow: inset 0 1px 2px rgba(58, 38, 30, .08);
+}
+
+.gg-band {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  border-radius: 4px;
+}
+
+.gg-band[data-band="0"] { background: linear-gradient(180deg, #A85D2E, #7C3F1B); }
+.gg-band[data-band="1"] { background: linear-gradient(180deg, #C87A44, #A0522A); }
+.gg-band[data-band="2"] { background: linear-gradient(180deg, #D99457, #B96C36); }
+.gg-band[data-band="3"] { background: linear-gradient(180deg, #E4B489, #C98A56); }
+
+.gg-mark {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 2px;
+  background: var(--green);
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .85);
+}
+
+.gg-mark b {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 2px 6px -1px rgba(58, 38, 30, .55);
+}
+
+.gg-mark[hidden] { display: none; }
+
+.gg-ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--muted-2);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .02em;
+}
+
+/* 12-3b. 실제 비율에 가까운 원형 점 비교 */
+.gg-dots {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2px;
+  margin: 11px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gg-dot {
+  display: grid;
+  grid-template-rows: 42px auto auto;
+  justify-items: center;
+  align-items: end;
+  flex: 1 1 0;
+  min-width: 0;
+  gap: 1px;
+}
+
+.gg-dot i {
+  align-self: end;
+  display: block;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #EFCBA6 0%, #E4B489 32%, #C87A44 72%, #A85D2E 100%);
+  box-shadow: inset 0 -2px 3px rgba(58, 38, 30, .18);
+}
+
+.gg-dot span {
+  font-size: 8.5px;
+  font-weight: 750;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.gg-dot em {
+  font-style: normal;
+  font-size: 7.5px;
+  font-weight: 700;
+  color: var(--muted-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.gg-dot[data-active="true"] i {
+  background: radial-gradient(circle at 34% 28%, #FFE7CB 0%, var(--dial-current) 34%, var(--gold) 76%, #8A4218 100%);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--gold), 0 6px 14px -6px rgba(200, 122, 68, .8);
+}
+
+.gg-dot[data-active="true"] span { color: var(--green); }
+.gg-dot[data-active="true"] em { color: var(--gold); }
+
+/* 12-3c. 마이크론 구간별 추출 도구 */
+.gg-tools {
+  display: grid;
+  gap: 4px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gg-tool {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1px 7px;
+  padding: 5px 9px 7px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: var(--green-tint);
+}
+
+.gg-tool-name {
+  min-width: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  word-break: keep-all;
+  line-height: 1.3;
+}
+
+.gg-tool-name small {
+  margin-inline-start: 4px;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--muted-2);
+}
+
+.gg-tool-range {
+  flex: none;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.gg-tool-track {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 3px;
+  margin-top: 3px;
+  border-radius: 2px;
+  background: rgba(58, 38, 30, .08);
+  overflow: hidden;
+}
+
+.gg-tool-track i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #C87A44, var(--gold-light));
+}
+
+.gg-tool[data-active="true"] {
+  border-color: rgba(200, 122, 68, .45);
+  background: linear-gradient(180deg, var(--gold-tint) 0%, var(--green-tint) 100%);
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+
+.gg-tool[data-active="true"] .gg-tool-name { color: var(--green); font-weight: 800; }
+.gg-tool[data-active="true"] .gg-tool-name small { color: var(--gold); }
+.gg-tool[data-active="true"] .gg-tool-range { color: var(--gold); }
+.gg-tool[data-active="true"] .gg-tool-track { background: rgba(200, 122, 68, .16); }
+
+.gg-foot {
+  margin: 9px 0 0;
+  font-size: 9.5px;
+  line-height: 1.5;
+  color: var(--muted-2);
+  word-break: keep-all;
+}
+
+@media (max-width: 380px) {
+  .grind-guide { padding: 11px 10px 10px; }
+  .gg-dot { grid-template-rows: 36px auto auto; }
+  .gg-tool { padding: 5px 8px 6px; }
+  .gg-tool-name { font-size: 10px; }
+}
