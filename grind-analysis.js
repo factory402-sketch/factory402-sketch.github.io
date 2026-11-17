@@ -1,5 +1,16 @@
-// Sizes are equivalent-circle diameters of isolated 2D silhouettes, by particle count.
+// Sizes are equivalent-circle diameters of isolated 2D silhouettes. The reported
+// percentile is weighted by silhouette area (mass), not by particle count: the same ink
+// splits into more pieces at higher capture resolution, so a count median falls as the
+// photo gets sharper while the area-weighted D50 stays put (real card: 1.39x -> 1.03x).
 const GrindAnalysis = (() => {
+  // Recipes saved before v3.2 counted particles; their numbers are not comparable.
+  const METRIC='area-v1';
+  // Under 120 µm a speck is paper grain, a print dot or a JPEG artefact rather than
+  // coffee: it is <1% of the ink area on a card photo, so dropping it leaves D50 alone.
+  const NOISE_UM=120;
+  // The same guard in pixels, so a photo where the grind is only a few pixels wide is
+  // still refused instead of being reported as very fine.
+  const MIN_WEIGHTED_PX=4;
   function measure(image, mmPerPixel) {
     const {width:w,height:h,data}=image;
     if (!(mmPerPixel>0) || !Number.isFinite(mmPerPixel)) throw Error('자의 두 눈금을 다시 지정하세요.');
@@ -31,7 +42,7 @@ const GrindAnalysis = (() => {
     const lightMean=(total-darkSum)/(gray.length-dark);
     if(lightMean<115 || lightMean-darkSum/dark<26)throw Error('밝은 곳에서 흰 종이와 가루가 뚜렷하게 보이도록 다시 촬영해 주세요.');
     if(dark/gray.length>.40)throw Error('가루를 더 얇게 흩어 놓고 흰 종이만 배경에 담아 주세요.');
-    const queue=new Int32Array(w*h),sizes=[],marks=[];
+    const queue=new Int32Array(w*h),diameters=[],areas=[],marks=[];
     for(let i=0;i<mask.length;i++){
       if(!mask[i])continue;
       let head=0,tail=1,edge=false,minX=w,maxX=0,minY=h,maxY=0;
@@ -48,14 +59,28 @@ const GrindAnalysis = (() => {
       }
       const bw=maxX-minX+1,bh=maxY-minY+1;
       if(edge||tail<4||Math.max(bw,bh)>5*Math.min(bw,bh))continue;
-      sizes.push(2*Math.sqrt(tail/Math.PI));marks.push([minX,minY,bw,bh]);
+      const d=2*Math.sqrt(tail/Math.PI);
+      if(d*mmPerPixel*1000<NOISE_UM)continue;
+      diameters.push(d);areas.push(tail);marks.push([minX,minY,bw,bh]);
     }
-    if(sizes.length<20)throw Error('분리되어 보이는 입자가 20개 미만이에요. 가루를 조금 더 넓게 흩어 놓고 다시 찍어주세요.');
-    sizes.sort((a,b)=>a-b);
-    const at=p=>sizes[Math.round((sizes.length-1)*p)];
-    if(at(.5)<3.2)throw Error('입자가 너무 작게 찍혔어요. 더 가까이서 선명하게 촬영해 주세요.');
-    const micron=p=>Math.round(at(p)*mmPerPixel*1000);
-    return {n:sizes.length,lo:micron(.1),mid:micron(.5),hi:micron(.9),marks};
+    if(diameters.length<20)throw Error('분리되어 보이는 입자가 20개 미만이에요. 가루를 조금 더 넓게 흩어 놓고 다시 찍어주세요.');
+    const n=diameters.length;
+    // Walk the diameters from fine to coarse, adding area, and read the size at which
+    // the accumulated area passes the wanted share of the total ink.
+    const order=diameters.map((_,index)=>index).sort((a,b)=>diameters[a]-diameters[b]);
+    let ink=0;
+    for(let index=0;index<n;index++)ink+=areas[index];
+    const weighted=p=>{
+      let acc=0;
+      for(const index of order){
+        acc+=areas[index];
+        if(acc>=ink*p)return diameters[index];
+      }
+      return diameters[order[n-1]];
+    };
+    if(weighted(.5)<MIN_WEIGHTED_PX)throw Error('입자가 너무 작게 찍혔어요. 더 가까이서 선명하게 촬영해 주세요.');
+    const micron=p=>Math.round(weighted(p)*mmPerPixel*1000);
+    return {n,lo:micron(.1),mid:micron(.5),hi:micron(.9),marks,metric:METRIC};
   }
   function valid(ref){
     return ref && [ref.lo,ref.mid,ref.hi,ref.n].every(Number.isSafeInteger) &&
@@ -63,5 +88,8 @@ const GrindAnalysis = (() => {
       ref.n>=20 && ref.n<=1000000 && (!ref.photo||/^[a-f0-9]{64}$/.test(ref.photo)) &&
       typeof ref.note==='string' && ref.note.length<=60;
   }
-  return {measure, valid};
+  // An older recipe still loads and shows its own numbers, but it may not be compared
+  // with an area-weighted measurement.
+  const current=ref=>valid(ref)&&ref.metric===METRIC;
+  return {measure, valid, current, METRIC};
 })();

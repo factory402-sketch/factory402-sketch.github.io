@@ -1,6 +1,8 @@
 // The printed fiducial has a 10 mm black square and a centered 4 mm white opening.
 // A photographed card is never perfectly lit, so the ink test adapts: a dark
 // QR printed on cream paper can read 100~150 in indoor light.
+// The recipe card's QR is a 14 mm square on a 90×50 mm card (measured 13.9 mm on the
+// real card: 125 px of a 450.5 px card width), so the card scale divides by 14, not 15.
 const GrindMarker = (() => {
   // Five steps instead of three: a real print sits right on one step's edge, and a
   // single step of difference decides whether the finder rings stay separate.
@@ -158,7 +160,7 @@ const GrindMarker = (() => {
     const x=Math.ceil(left-1.67*side),y=Math.ceil(top+1.32*side);
     const w=Math.round(2.5*side),h=Math.round(3.35*side);
     if(x<0||y<0||x+w>width||y+h>height)throw fail('카드 가운데 흰 공간도 사진 안에 들어오게 찍어주세요.',false);
-    return {marker,x,y,w,h,mmPerPixel:15/side};
+    return {marker,x,y,w,h,mmPerPixel:14/side};
   }
   function solutionScore(dark,width,height,solution){
     const {a,b,c,side}=solution;

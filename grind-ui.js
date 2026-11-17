@@ -23,16 +23,19 @@ const GrindUI = (() => {
   function comparison(){
     if(!measurement)return;
     if(!reference){el('grindComparison').textContent='기준으로 저장할 수 있는 측정값입니다.';return;}
+    // A basis saved by counting particles runs several times finer than the same grind
+    // measured by area, so comparing the two would show a meaningless +150%.
+    if(!GrindAnalysis.current(reference)){el('grindComparison').textContent='이전 방식의 기준값이에요. 새로 측정해 기준을 갱신해 주세요.';return;}
     const delta=100*(measurement.mid/reference.mid-1);
     const direction=delta>0?'굵게':'곱게';
-    el('grindComparison').textContent=delta===0?'두 사진의 입자 중앙값이 같습니다.':'기준 '+reference.mid+' μm에 비해 이번 사진의 입자 중앙값은 '+Math.abs(delta).toFixed(1)+'% '+direction+' 측정됐어요.';
+    el('grindComparison').textContent=delta===0?'두 사진의 입자 굵기가 같습니다.':'기준 '+reference.mid+' μm에 비해 이번 사진의 입자 굵기는 '+Math.abs(delta).toFixed(1)+'% '+direction+' 측정됐어요.';
   }
   async function setReference(value){
     reference=GrindAnalysis.valid(value)?value:null;
     const ref=reference,box=el('grindReference');box.replaceChildren();
     if(!ref){box.textContent='현재 레시피에 저장된 비교 기준이 없습니다.';comparison();return;}
     const title=document.createElement('strong');title.textContent='레시피 기준 · '+ref.mid+' μm';
-    const detail=document.createElement('p');detail.textContent=(ref.note?ref.note+' · ':'')+ref.n+'개 검출 · 가운데 80% '+ref.lo+'–'+ref.hi+' μm';
+    const detail=document.createElement('p');detail.textContent=(ref.note?ref.note+' · ':'')+ref.n+'개 검출 · 면적 10–90% '+ref.lo+'–'+ref.hi+' μm'+(GrindAnalysis.current(ref)?'':' · 이전 방식');
     const clear=document.createElement('button');clear.textContent='현재 설정에서 기준 해제';clear.onclick=()=>setReference(null);
     box.append(title,detail,clear);comparison();
     if(!ref.photo)return;
@@ -113,7 +116,7 @@ const GrindUI = (() => {
         ctx.strokeStyle='#f39828';ctx.strokeRect(marker.left,marker.top,marker.w,marker.h);
         ctx.strokeStyle='#00966c';ctx.strokeRect(x,y,w,h);
         analyze(x,y,w,h,mmPerPixel);
-        status((cardMode()?'카드 QR 15 mm':'기준 네모 10 mm')+'를 인식했어요. 초록색 영역의 가루를 측정했습니다.');
+        status((cardMode()?'카드 QR 14 mm':'기준 네모 10 mm')+'를 인식했어요. 초록색 영역의 가루를 측정했습니다.');
         return true;
       }catch(error){window.recordFeature?.('grind_fail');status(error.message);return false;}
   }
@@ -142,11 +145,11 @@ const GrindUI = (() => {
   };
   function analyze(x,y,w,h,mmPerPixel){
       const result=GrindAnalysis.measure(source.getImageData(x,y,w,h),mmPerPixel);
-      measurement={n:result.n,lo:result.lo,mid:result.mid,hi:result.hi,note:''};
+      measurement={n:result.n,lo:result.lo,mid:result.mid,hi:result.hi,note:'',metric:result.metric};
       if(!GrindAnalysis.valid(measurement))throw Error('측정 범위를 벗어났어요. 눈금과 영역을 다시 확인해 주세요.');
       crop={x,y,w,h};ctx.strokeStyle='#00a878';ctx.lineWidth=1;
       for(const [l,t,cw,ch] of result.marks)ctx.strokeRect(x+l,y+t,cw,ch);
-      el('grindSize').textContent='입자 중앙값 '+result.mid+' μm';el('grindSpread').textContent=result.n+'개 검출 · 가운데 80% '+result.lo+'–'+result.hi+' μm';
+      el('grindSize').textContent='입자 굵기 '+result.mid+' μm';el('grindSpread').textContent=result.n+'개 검출 · 면적 10–90% '+result.lo+'–'+result.hi+' μm';
       el('grindResult').hidden=false;comparison();window.recordFeature?.('grind_ok');
   }
   async function withMeasurement(onReady){
