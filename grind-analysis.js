@@ -19,11 +19,17 @@ const GrindAnalysis = (() => {
       if(score>best){best=score;threshold=t;}
     }
     if(!best)throw Error('입자와 흰 배경을 구분할 수 없어요.');
+    // Otsu can split the paper's own shading when the ground is sparse. Keep the
+    // threshold below the paper level so a light gradient is not read as particles.
+    let median=0,enough=0;
+    for(let t=0;t<256;t++){enough+=hist[t];if(enough>=gray.length/2){median=t;break;}}
+    threshold=Math.min(threshold,median-24);
+    if(threshold<8)threshold=8;
     const mask=gray.map(v=>v<=threshold?1:0);
     const dark=mask.reduce((a,b)=>a+b,0);
     const darkSum=hist.slice(0,threshold+1).reduce((sum,count,level)=>sum+count*level,0);
     const lightMean=(total-darkSum)/(gray.length-dark);
-    if(lightMean<135 || lightMean-darkSum/dark<32)throw Error('밝은 곳에서 흰 종이와 가루가 뚜렷하게 보이도록 다시 촬영해 주세요.');
+    if(lightMean<115 || lightMean-darkSum/dark<26)throw Error('밝은 곳에서 흰 종이와 가루가 뚜렷하게 보이도록 다시 촬영해 주세요.');
     if(dark/gray.length>.40)throw Error('가루를 더 얇게 흩어 놓고 흰 종이만 배경에 담아 주세요.');
     const queue=new Int32Array(w*h),sizes=[],marks=[];
     for(let i=0;i<mask.length;i++){
@@ -41,13 +47,13 @@ const GrindAnalysis = (() => {
         }
       }
       const bw=maxX-minX+1,bh=maxY-minY+1;
-      if(edge||tail<12||Math.max(bw,bh)>5*Math.min(bw,bh))continue;
+      if(edge||tail<4||Math.max(bw,bh)>5*Math.min(bw,bh))continue;
       sizes.push(2*Math.sqrt(tail/Math.PI));marks.push([minX,minY,bw,bh]);
     }
     if(sizes.length<20)throw Error('분리되어 보이는 입자가 20개 미만이에요. 가루를 조금 더 넓게 흩어 놓고 다시 찍어주세요.');
     sizes.sort((a,b)=>a-b);
     const at=p=>sizes[Math.round((sizes.length-1)*p)];
-    if(at(.5)<6)throw Error('입자가 너무 작게 찍혔어요. 더 가까이서 선명하게 촬영해 주세요.');
+    if(at(.5)<3.2)throw Error('입자가 너무 작게 찍혔어요. 더 가까이서 선명하게 촬영해 주세요.');
     const micron=p=>Math.round(at(p)*mmPerPixel*1000);
     return {n:sizes.length,lo:micron(.1),mid:micron(.5),hi:micron(.9),marks};
   }

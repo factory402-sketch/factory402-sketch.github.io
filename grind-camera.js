@@ -38,40 +38,54 @@
   function inspect(token){
     if(token!==session||busy)return;
     try{
-      if(video.readyState<2)throw Error();draw(probe,context);
-      const image=context.getImageData(0,0,probe.width,probe.height);
-      const {marker}=GrindMarker.locate(image,true);
-      if(!GrindCaptureQuality.aligned(marker,probe.width,probe.height))throw Error();
-      const score=GrindCaptureQuality.sharpness(image,marker);
+      let location=null,image=null,problem='';
+      try{
+        if(video.readyState<2)throw Error();
+        draw(probe,context);
+        image=context.getImageData(0,0,probe.width,probe.height);
+        location=GrindMarker.locate(image,true);
+      }catch(error){problem=error?.message||'';}
+      if(!location){
+        candidate=null;
+        state('aligning',problem.includes('흰 공간')?'카드가 조금 가까워요 · 조금 더 멀리서 맞춰 주세요.':'카드를 흰 선에 맞춰 주세요 · QR은 오른쪽 위');
+        return;
+      }
+      if(!GrindCaptureQuality.aligned(location,probe.width,probe.height)){
+        candidate=null;state('aligning',GrindCaptureQuality.guidance(location,probe.width,probe.height));
+        return;
+      }
+      const marker=location.marker,score=GrindCaptureQuality.sharpness(image,marker);
       if(!score){
         candidate=null;state('focusing','QR이 흐려요. 카드를 밝게 비춰 주세요.');
-      }else{
-        const now=performance.now();
-        const previous=candidate;
-        const stable=previous && now-previous.lastSeen<350 &&
-          Math.hypot(marker.left-previous.marker.left,marker.top-previous.marker.top)<=9 &&
-          Math.abs(marker.side-previous.marker.side)<=6;
-        if(!stable){
-          candidate={marker,firstSeen:now,lastSeen:now,score,frame:captureFrame()};
-        }else{
-          candidate.lastSeen=now;
-          if(score>candidate.score){
-            candidate.score=score;
-            candidate.frame=captureFrame();
-          }
-          const progress=Math.min(1,(now-candidate.firstSeen)/350);
-          state('ready','선명해요 · 자동 촬영 중',progress);
-          if(progress>=1){void snap(candidate.frame);return;}
-        }
-        if(!stable)state('steadying','QR이 보여요. 잠깐만 유지해 주세요.');
+        return;
       }
-    }catch{candidate=null;state('aligning','카드를 흰 선에 맞춰 주세요 · QR은 오른쪽 위');}
-    timer=setTimeout(()=>inspect(token),120);
+      const now=performance.now(),previous=candidate;
+      const stable=previous && now-previous.lastSeen<500 &&
+        Math.hypot(marker.left-previous.marker.left,marker.top-previous.marker.top)<=18 &&
+        Math.abs(marker.side-previous.marker.side)<=12;
+      if(!stable){
+        candidate={marker,firstSeen:now,lastSeen:now,score,frame:captureFrame()};
+        state('steadying','QR이 보여요. 잠깐만 유지해 주세요.');
+        return;
+      }
+      candidate.lastSeen=now;
+      if(score>candidate.score){
+        candidate.score=score;
+        candidate.frame=captureFrame();
+      }
+      const progress=Math.min(1,(now-candidate.firstSeen)/250);
+      state('ready','선명해요 · 자동 촬영 중',progress);
+      if(progress>=1)void snap(candidate.frame);
+    }catch{
+      candidate=null;state('aligning','카드를 흰 선에 맞춰 주세요 · QR은 오른쪽 위');
+    }finally{
+      if(token===session)timer=setTimeout(()=>inspect(token),120);
+    }
   }
   start.onclick=async()=>{
     stop();const token=session;start.disabled=true;
     try{
-      const acquired=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1920}}});
+      const acquired=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:2560},height:{ideal:1920},aspectRatio:{ideal:4/3}}});
       if(token!==session){acquired.getTracks().forEach(track=>track.stop());return;}
       stream=acquired;live.hidden=false;dialog.classList.add('camera-active');video.srcObject=stream;
       state('aligning','카드를 흰 선에 맞춰 주세요 · QR은 오른쪽 위');
