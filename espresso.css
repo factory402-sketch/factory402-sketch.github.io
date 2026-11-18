@@ -225,6 +225,48 @@
   color: var(--ink-soft);
 }
 
+.shopbar a {
+  color: var(--green);
+}
+
+.bean-card {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  box-shadow: 0 1px 2px rgba(58, 38, 30, .05);
+}
+
+.bean-name {
+  color: var(--green);
+}
+
+.bean-meta {
+  color: var(--gold);
+}
+
+.bean-note {
+  color: var(--muted);
+}
+
+.bean-go {
+  border: 1px solid var(--line);
+  background: var(--green-tint);
+  color: var(--green);
+}
+
+.bean-bulk > span {
+  color: var(--muted);
+}
+
+.bean-bulk a {
+  border: 1px solid var(--line);
+  background: var(--green-tint);
+  color: var(--green);
+}
+
+.bean-bulk a b {
+  color: var(--gold);
+}
+
 .store-link {
   background: linear-gradient(180deg, var(--green), var(--green));
 }

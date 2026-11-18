@@ -1,5 +1,5 @@
 /* ==========================================================================
-   카페이유 · 추출 도우미 — 추출 타이머 작은 창(PiP)  v3.6
+   카페이유 · 추출 도우미 — 추출 타이머 작은 창(PiP)  v3.7
    --------------------------------------------------------------------------
    · 오프스크린 Canvas(480×270, ☕ 에스프레소 & 오트)에 실시간 추출 상태를 그린다.
      경과 시간 · 현재 푸어 단계 · 목표 누적 물량 · 다음 푸어 카운트다운.
@@ -264,7 +264,7 @@
     // 바닥
     ctx.font = font(600, 9);
     ctx.fillStyle = 'rgba(217,196,180,.55)';
-    ctx.fillText('cafe.leeu 추출 도우미 · v3.6', 22, 250);
+    ctx.fillText('cafe.leeu 추출 도우미 · v3.7', 22, 250);
     ctx.textAlign = 'right';
     ctx.fillStyle = 'rgba(217,196,180,.5)';
     ctx.fillText(idle ? '준비' : done ? '완료' : '작은 창', W - 22, 250);
@@ -500,7 +500,7 @@
             '<span id="nextline">추출 시작을 누르면 실시간으로 갱신돼요</span>' +
           '</div>' +
         '</div>' +
-        '<div class="foot"><span>클릭하면 본 화면으로 돌아갑니다</span><span>v3.6</span></div>' +
+        '<div class="foot"><span>클릭하면 본 화면으로 돌아갑니다</span><span>v3.7</span></div>' +
       '</div>';
     const q = id => doc.getElementById(id);
     return { doc, dial: q('dial'), pill: q('pill'), clock: q('clock'), round: q('round'), cap: q('cap'), cue: q('cue'), amount: q('amount'), target: q('target'), fill: q('fill'), nextline: q('nextline') };
