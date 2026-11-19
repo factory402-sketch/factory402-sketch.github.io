@@ -97,9 +97,10 @@
   #targetModal p { margin:0; font-size:13px; color:#b9ada2; text-align:center; line-height:1.65; max-width:340px; }
 
   /* ---------- 콘텐츠 영상 (화면 밖) ---------- */
+  /* iOS Safari가 영상 프레임을 계속 디코딩하도록 화면에 붙여둔다 (2px, 거의 투명) */
   .content-video {
     position:fixed; left:0; top:0; width:2px; height:2px; opacity:.01;
-    pointer-events:none; z-index:-1;
+    pointer-events:none; z-index:2;
   }
 
   /* ---------- 오류 ---------- */
