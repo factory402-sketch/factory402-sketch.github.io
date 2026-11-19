@@ -1540,6 +1540,25 @@ dialog .fields::before { display: none; }
 
 .bean-bulk a b { flex: 0 0 auto; font-weight: 750; color: #8a6b34; }
 
+/* 5kg 무료배송 상품 — 이름 아래 할인·배송 안내를 한 줄 더 둔다 */
+.bean-bulk a.bean-bulk-deal { border-color: #dcc994; background: #fbf5e3; }
+
+.bean-bulk a.bean-bulk-deal span {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: visible;
+  white-space: nowrap;
+}
+
+.bean-bulk a.bean-bulk-deal em {
+  font-style: normal;
+  font-size: 9.6px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: #a98d4f;
+}
+
 .bean-list { display: grid; gap: 9px; margin: 14px 0; }
 
 .bean-list article {

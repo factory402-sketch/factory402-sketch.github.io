@@ -267,6 +267,15 @@
   color: var(--gold);
 }
 
+.bean-bulk a.bean-bulk-deal {
+  border: 1px solid var(--gold-light);
+  background: var(--gold-tint);
+}
+
+.bean-bulk a.bean-bulk-deal em {
+  color: var(--gold);
+}
+
 .store-link {
   background: linear-gradient(180deg, var(--green), var(--green));
 }
