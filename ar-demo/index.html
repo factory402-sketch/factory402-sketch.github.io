@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#1b1310" />
+<title>에그타르트 AR 포토카드</title>
+<style>
+  :root { --cream:#f6e9cf; --caramel:#c8834a; --deep:#1b1310; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin:0; padding:0; height:100%; overflow:hidden; background:var(--deep);
+    font-family:-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    color:#fff; overscroll-behavior:none;
+  }
+
+  /* ---------- AR 루트 (카메라 영상이 이 안에 들어간다) ---------- */
+  #arRoot { position:fixed; inset:0; z-index:0; background:#000; overflow:hidden; }
+  #arRoot a-scene { position:absolute !important; inset:0; width:100%; height:100%; }
+  .a-enter-vr, .a-enter-ar, .a-orientation-modal { display:none !important; }
+
+  /* ---------- 공통 화면 ---------- */
+  .screen {
+    position:fixed; inset:0; z-index:40; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px; text-align:center;
+    padding:calc(24px + env(safe-area-inset-top)) 22px calc(24px + env(safe-area-inset-bottom));
+    background:radial-gradient(120% 80% at 50% 0%, #3a2a20 0%, #1b1310 55%, #120c09 100%);
+    transition:opacity .35s ease, visibility .35s ease;
+  }
+  .screen.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+  .eyebrow { font-size:11.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--caramel); font-weight:700; }
+  h1 { font-size:25px; line-height:1.28; margin:0; font-weight:800; letter-spacing:-.01em; }
+  h1 span { color:var(--cream); }
+  .sub { font-size:14.5px; line-height:1.65; color:#cbbfb2; max-width:330px; margin:0; }
+  .card {
+    width:min(56vw, 190px); border-radius:16px; overflow:hidden; background:#2a1f18;
+    border:1px solid rgba(246,233,207,.14); box-shadow:0 18px 40px rgba(0,0,0,.45);
+  }
+  .card img { display:block; width:100%; height:auto; }
+  .btn {
+    appearance:none; border:0; cursor:pointer; font:inherit; font-weight:800;
+    border-radius:999px; padding:16px 28px; min-width:min(80vw, 290px); font-size:16.5px;
+    display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    transition:transform .12s ease, filter .12s ease;
+  }
+  .btn:active { transform:scale(.97); }
+  .btn[disabled] { opacity:.6; }
+  .btn-primary { background:linear-gradient(180deg,#e8a860,#c8834a); color:#241812; box-shadow:0 10px 24px rgba(200,131,74,.35); }
+  .btn-ghost { background:rgba(246,233,207,.08); color:var(--cream); border:1px solid rgba(246,233,207,.22); font-weight:700; font-size:14.5px; padding:12px 20px; min-width:auto; }
+  .hint { font-size:12px; color:#8e8279; line-height:1.6; max-width:320px; margin:0; }
+
+  /* ---------- 스피너 ---------- */
+  .spinner {
+    width:36px; height:36px; border-radius:50%;
+    border:3px solid rgba(246,233,207,.18); border-top-color:var(--caramel);
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ---------- HUD ---------- */
+  #hud { position:fixed; inset:0; z-index:30; pointer-events:none; display:none; }
+  #hud.on { display:block; }
+  #statusPill {
+    position:absolute; top:calc(14px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:8px; padding:10px 16px; border-radius:999px;
+    background:rgba(20,14,11,.7); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+    border:1px solid rgba(246,233,207,.16); font-size:13.5px; font-weight:700; color:#f0e6d8;
+    white-space:nowrap; max-width:calc(100vw - 24px); overflow:hidden; text-overflow:ellipsis;
+    transition:background .25s ease, color .25s ease, border-color .25s ease;
+  }
+  #statusPill .dot { width:8px; height:8px; border-radius:50%; background:#c8834a; flex:none; }
+  #statusPill.found { background:rgba(232,168,96,.95); color:#241812; border-color:rgba(255,255,255,.35); }
+  #statusPill.found .dot { background:#241812; }
+
+  #controls {
+    position:absolute; left:0; right:0; bottom:calc(16px + env(safe-area-inset-bottom));
+    display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  .chip {
+    pointer-events:auto; appearance:none; border:1px solid rgba(246,233,207,.2);
+    background:rgba(20,14,11,.7); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+    color:#f0e6d8; font:inherit; font-size:13.5px; font-weight:700; border-radius:999px;
+    padding:11px 16px; display:inline-flex; align-items:center; gap:7px; cursor:pointer;
+  }
+  .chip:active { transform:scale(.97); }
+  .chip svg { width:16px; height:16px; }
+
+  /* ---------- 타깃 사진 모달 ---------- */
+  #targetModal {
+    position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center;
+    background:rgba(8,5,4,.94); padding:calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));
+    flex-direction:column; gap:14px;
+  }
+  #targetModal.on { display:flex; }
+  #targetModal img { max-width:100%; max-height:70vh; border-radius:14px; box-shadow:0 18px 50px rgba(0,0,0,.6); }
+  #targetModal p { margin:0; font-size:13px; color:#b9ada2; text-align:center; line-height:1.65; max-width:340px; }
+
+  /* ---------- 콘텐츠 영상 (화면 밖) ---------- */
+  .content-video {
+    position:fixed; left:0; top:0; width:2px; height:2px; opacity:.01;
+    pointer-events:none; z-index:-1;
+  }
+
+  /* ---------- 오류 ---------- */
+  .err-title { color:#ffb490; font-weight:800; font-size:17px; }
+</style>
+<!-- A-Frame과 MindAR은 반드시 <a-scene>보다 먼저 로드되어야 컴포넌트가 등록된다 -->
+<script src="vendor/aframe.min.js"></script>
+<script src="vendor/mindar-image-aframe.prod.js"></script>
+</head>
+<body>
+
+<!-- ================= AR 씬 ================= -->
+<div id="arRoot">
+  <a-scene
+    id="arScene"
+    mindar-image="imageTargetSrc: targets.mind; uiLoading: no; uiScanning: no; uiError: no; autoStart: false; maxTrack: 1;"
+    color-space="sRGB"
+    renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true; alpha: true"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+    embedded>
+    <a-assets>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false"></a-camera>
+
+    <a-entity id="arTarget" mindar-image-target="targetIndex: 0">
+      <!-- 타깃 사진 1152:2048 = 1 : 1.7778 / 영상 720:1280 = 같은 비율 -->
+      <a-video id="contentPlane" src="#contentVideo" width="1" height="1.7778" position="0 0 0"></a-video>
+    </a-entity>
+  </a-scene>
+</div>
+
+<!-- ================= 콘텐츠 영상 ================= -->
+<!-- iOS Safari는 display:none 상태의 영상에 프레임을 올리지 못하는 경우가 있어
+     화면 밖에 아주 작게 두고 재생한다. -->
+<video id="contentVideo" src="video.mp4" class="content-video"
+       playsinline webkit-playsinline muted loop crossorigin="anonymous"
+       preload="auto"></video>
+
+<!-- ================= 시작 화면 ================= -->
+<div id="intro" class="screen">
+  <div class="eyebrow">Cafe Yu · AR Photo Card</div>
+  <h1>에그타르트 <span>AR 포토카드</span></h1>
+  <p class="sub">에그타르트 사진을 카메라로 비추면<br>사진 위에서 영상이 재생됩니다.</p>
+  <div class="card"><img src="target.jpg" alt="에그타르트 타깃 사진" /></div>
+  <button id="startBtn" class="btn btn-primary">AR 카메라 시작</button>
+  <p class="hint">카메라 권한을 허용해 주세요.<br>사진을 다른 화면(PC·태블릿)에 띄워두면 더 잘 인식됩니다.</p>
+</div>
+
+<!-- ================= 로딩 화면 ================= -->
+<div id="loading" class="screen hidden">
+  <div class="spinner"></div>
+  <h1>AR 준비 중…</h1>
+  <p class="sub" id="loadingMsg">카메라를 켜고 사진을 인식할 준비를 하고 있어요.</p>
+</div>
+
+<!-- ================= 오류 화면 ================= -->
+<div id="errorBox" class="screen hidden">
+  <div class="err-title">카메라를 열 수 없어요</div>
+  <p class="sub" id="errorMsg">브라우저 설정에서 카메라 권한을 허용한 뒤 다시 시도해 주세요.</p>
+  <button id="retryBtn" class="btn btn-primary">다시 시도</button>
+  <button id="photoBtn2" class="btn btn-ghost">타깃 사진 보기</button>
+  <p class="hint">아이폰은 Safari로 열어야 카메라가 동작합니다.<br>인스타그램·카카오톡 인앱 브라우저에서는 카메라가 막힐 수 있어요.</p>
+</div>
+
+<!-- ================= HUD ================= -->
+<div id="hud">
+  <div id="statusPill"><span class="dot"></span><span id="statusText">에그타르트 사진을 카메라로 비춰보세요</span></div>
+  <div id="controls">
+    <button id="soundBtn" class="chip" aria-pressed="false">
+      <svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+      <span id="soundLabel">소리 켜기</span>
+    </button>
+    <button id="photoBtn" class="chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+      <span>타깃 사진</span>
+    </button>
+  </div>
+</div>
+
+<!-- ================= 타깃 사진 모달 ================= -->
+<div id="targetModal">
+  <img src="target.jpg" alt="에그타르트 타깃 사진" />
+  <p>이 사진을 다른 화면에 띄워두고 카메라로 비춰보세요.<br>인쇄한 사진이나 포장지도 인식됩니다.</p>
+  <button id="closeModal" class="btn btn-ghost">닫기</button>
+</div>
+
+<!-- ================= 스크립트 ================= -->
+<script>
+(function () {
+  "use strict";
+
+  var video    = document.getElementById("contentVideo");
+  var sceneEl  = document.getElementById("arScene");
+  var anchorEl = document.getElementById("arTarget");
+
+  var intro    = document.getElementById("intro");
+  var loading  = document.getElementById("loading");
+  var errorBox = document.getElementById("errorBox");
+  var hud      = document.getElementById("hud");
+
+  var startBtn   = document.getElementById("startBtn");
+  var retryBtn   = document.getElementById("retryBtn");
+  var soundBtn   = document.getElementById("soundBtn");
+  var soundLabel = document.getElementById("soundLabel");
+  var soundIcon  = document.getElementById("soundIcon");
+  var statusPill = document.getElementById("statusPill");
+  var statusText = document.getElementById("statusText");
+  var modal      = document.getElementById("targetModal");
+
+  var state = { starting:false, started:false, sound:false, found:false };
+
+  var ICON_ON  = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>';
+  var ICON_OFF = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>';
+
+  function hide(el) { el.classList.add("hidden"); }
+  function show(el) { el.classList.remove("hidden"); }
+
+  function setStatus(found) {
+    state.found = found;
+    statusPill.classList.toggle("found", found);
+    statusText.textContent = found
+      ? "인식 완료! 영상 재생 중"
+      : "에그타르트 사진을 카메라로 비춰보세요";
+  }
+
+  /* ---------------- 영상 준비 (iOS 자동재생 정책 대응) ---------------- */
+  // 사용자 제스처 안에서 한 번 play() → pause() 해 두면
+  // 이후 targetFound 시점의 play()가 iOS Safari에서도 허용된다.
+  function primeVideo() {
+    try { video.currentTime = 0; } catch (e) {}
+    video.muted = !state.sound;
+    var p = video.play();
+    if (p && typeof p.then === "function") {
+      return p.then(function () {
+        try { video.pause(); } catch (e) {}
+      }).catch(function () {});
+    }
+    try { video.pause(); } catch (e) {}
+    return Promise.resolve();
+  }
+
+  function playContent() {
+    video.muted = !state.sound;
+    var p = video.play();
+    if (p && typeof p.catch === "function") {
+      p.catch(function () {
+        // iOS에서 소리 켠 재생이 막히면 음소거 상태로라도 재생
+        setSoundUI(false, false);
+        video.muted = true;
+        var q = video.play(); if (q && q.catch) q.catch(function () {});
+      });
+    }
+  }
+
+  function pauseContent() { try { video.pause(); } catch (e) {} }
+
+  /* ---------------- AR 시작 / 종료 ---------------- */
+  function arSystem() { return sceneEl.systems && sceneEl.systems["mindar-image-system"]; }
+
+  function beginAR() {
+    if (state.starting) return;
+    state.starting = true;
+    startBtn.disabled = true;
+
+    setStatus(false);
+    hide(intro);
+    show(loading);
+
+    primeVideo().then(function () {
+      var sys = arSystem();
+      if (!sys || typeof sys.start !== "function") return onCameraError(new Error("AR 시스템을 불러오지 못했습니다."));
+      Promise.resolve().then(function () { sys.start(); }).catch(onCameraError);
+    });
+  }
+
+  // 시스템이 카메라·모델 준비를 마치면 arReady, 실패하면 arError를 쏜다
+  sceneEl.addEventListener("arReady", function () {
+    state.started = true;
+    state.starting = false;
+    startBtn.disabled = false;
+    hide(loading);
+    hide(errorBox);
+    hud.classList.add("on");
+    setStatus(false);
+  });
+
+  sceneEl.addEventListener("arError", function (evt) {
+    state.starting = false;
+    startBtn.disabled = false;
+    onCameraError((evt && evt.detail && evt.detail.error) || "VIDEO_FAIL");
+  });
+
+  function onCameraError(err) {
+    state.started = false;
+    hud.classList.remove("on");
+    hide(loading);
+    var name = (err && err.name) || (typeof err === "string" ? err : "");
+    var text = (err && err.message) || "";
+    var msg = "브라우저 설정에서 카메라 권한을 허용한 뒤 다시 시도해 주세요.";
+    if (name === "NotAllowedError" || /permission|denied/i.test(text)) {
+      msg = "카메라 권한이 거부되었습니다. 주소창 왼쪽의 설정에서 카메라를 허용하고 다시 시도해 주세요.";
+    } else if (name === "NotFoundError") {
+      msg = "이 기기에서 카메라를 찾을 수 없습니다.";
+    } else if (name === "VIDEO_FAIL") {
+      msg = (location.protocol !== "https:")
+        ? "카메라는 HTTPS 주소에서만 열 수 있습니다."
+        : "카메라를 열 수 없습니다. 브라우저의 카메라 권한을 확인해 주세요.";
+    } else if (text) {
+      msg = text;
+    }
+    document.getElementById("errorMsg").textContent = msg;
+    show(errorBox);
+    console.warn("[AR] start failed:", err);
+  }
+
+  /* ---------------- 타깃 인식 ---------------- */
+  function onFound() {
+    if (state.found) return;
+    setStatus(true);
+    playContent();
+  }
+  function onLost() {
+    if (!state.found) return;
+    setStatus(false);
+    pauseContent();
+  }
+
+  if (anchorEl) {
+    anchorEl.addEventListener("targetFound", onFound);
+    anchorEl.addEventListener("targetLost", onLost);
+  }
+
+  // 이벤트가 유실되는 환경 대비: 앵커 가시성 폴링
+  setInterval(function () {
+    if (!state.started) return;
+    var visible = false;
+    try { visible = !!(anchorEl.object3D && anchorEl.object3D.visible); } catch (e) {}
+    if (visible) onFound(); else onLost();
+  }, 300);
+
+  /* ---------------- 소리 토글 ---------------- */
+  function setSoundUI(on, applyToVideo) {
+    state.sound = on;
+    soundLabel.textContent = on ? "소리 끄기" : "소리 켜기";
+    soundBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    soundIcon.innerHTML = on ? ICON_ON : ICON_OFF;
+    if (applyToVideo) {
+      video.muted = !on;
+      if (on && state.found) {
+        var p = video.play(); if (p && p.catch) p.catch(function () {});
+      }
+    }
+  }
+  soundBtn.addEventListener("click", function () { setSoundUI(!state.sound, true); });
+
+  /* ---------------- 타깃 사진 모달 ---------------- */
+  function openModal() { modal.classList.add("on"); }
+  function closeModal() { modal.classList.remove("on"); }
+  document.getElementById("photoBtn").addEventListener("click", openModal);
+  document.getElementById("photoBtn2").addEventListener("click", openModal);
+  document.getElementById("closeModal").addEventListener("click", closeModal);
+  modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+
+  /* ---------------- 버튼 ---------------- */
+  startBtn.addEventListener("click", beginAR);
+  retryBtn.addEventListener("click", function () {
+    hide(errorBox);
+    beginAR();
+  });
+
+  /* ---------------- 백그라운드 처리 ---------------- */
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+      pauseContent();
+      var sys = arSystem();
+      if (sys && sys.pause && state.started) { try { sys.pause(true); } catch (e) {} }
+    } else if (state.started) {
+      var sys2 = arSystem();
+      if (sys2 && sys2.unpause) { try { sys2.unpause(); } catch (e) {} }
+    }
+  });
+
+  // 디버그용
+  window.__ar = { state: state, video: video, scene: sceneEl, system: arSystem };
+})();
+</script>
+</body>
+</html>
