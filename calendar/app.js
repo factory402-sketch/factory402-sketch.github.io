@@ -86,7 +86,7 @@
         c.stamp = stamp;
         c.num.textContent = d.getDate();
         c.btn.classList.toggle("muted", other);
-        c.btn.classList.toggle("today", sameDay(d, today));
+        c.btn.classList.toggle("is-today", sameDay(d, today));
         c.btn.setAttribute(
           "aria-label",
           d.getFullYear() + " " + MONTHS[d.getMonth()] + " " + d.getDate() +

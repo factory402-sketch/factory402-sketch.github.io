@@ -244,7 +244,7 @@ body {
   font-weight: 700;
 }
 
-.day.today .num {
+.day.is-today .num {
   font-size: 0.72em;
   width: 2.2em;
   height: 2.2em;
@@ -261,14 +261,14 @@ body {
   .day:hover .num {
     opacity: 0.72;
   }
-  .day.today:hover .num {
+  .day.is-today:hover .num {
     opacity: 1;
   }
 }
 
 /* ---------- today chip ---------- */
 
-.today {
+.today-chip {
   position: absolute;
   left: 50%;
   bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(4px, 1.4vmin, 16px));
@@ -294,13 +294,13 @@ body {
   transition: opacity 0.26s ease, transform 0.26s ease;
 }
 
-.today[data-show="true"] {
+.today-chip[data-show="true"] {
   opacity: 0.5;
   transform: translateX(-50%);
   pointer-events: auto;
 }
 
-.today:hover {
+.today-chip:hover {
   opacity: 0.9;
 }
 
