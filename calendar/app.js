@@ -34,6 +34,7 @@
     return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate();
   }
 
+  var swipeAt = 0;
   var today = startOfDay(new Date());
   var view = new Date(today.getFullYear(), today.getMonth(), 1);
   var anchor = new Date(today);
@@ -59,6 +60,7 @@
     btn.appendChild(num);
     (function (index) {
       btn.addEventListener("click", function () {
+        if (Date.now() - swipeAt < 420) return;
         pickDay(index);
       });
     })(i);
@@ -176,6 +178,7 @@
     view = new Date(today.getFullYear(), today.getMonth(), 1);
     anchor = new Date(today);
     render();
+    if (document.activeElement === todayBtn) todayBtn.blur();
     if (!reduceMotion) {
       ghostNum.animate(
         [
@@ -212,6 +215,7 @@
     var dx = e.clientX - startX;
     var dy = e.clientY - startY;
     if (Math.abs(dx) > 46 && Math.abs(dx) > Math.abs(dy) * 1.6) {
+      swipeAt = Date.now();
       shiftMonth(dx < 0 ? 1 : -1);
     }
   });
