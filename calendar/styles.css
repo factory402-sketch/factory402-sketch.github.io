@@ -18,7 +18,7 @@
 
   --pad-y: clamp(16px, 4.4vmin, 54px);
   --pad-x: clamp(18px, 4.6vw, 76px);
-  --title-fs: clamp(20px, 3.6vmin + 10px, 46px);
+  --title-fs: clamp(20px, 4.2vmin + 6px, 52px);
   --gap: clamp(8px, 2.2vmin, 30px);
 }
 
@@ -151,7 +151,7 @@ body {
   grid-template-columns: repeat(7, 1fr);
   padding-bottom: clamp(2px, 0.9vmin, 12px);
   font-size: 2.6vmin; /* fallback */
-  font-size: min(7.4cqh, 8.4cqw);
+  font-size: min(11.3cqh, 9.5cqw);
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -208,7 +208,7 @@ body {
   color: inherit;
   font: inherit;
   font-size: 6vmin; /* fallback */
-  font-size: min(7.6cqh, 8.4cqw);
+  font-size: min(11.3cqh, 9.5cqw);
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0;
@@ -311,6 +311,16 @@ body {
     --pad-y: clamp(10px, 3vmin, 26px);
     --title-fs: clamp(17px, 4.6vmin, 34px);
     --gap: clamp(4px, 1.4vmin, 12px);
+  }
+}
+
+@media (orientation: portrait) {
+  .cal {
+    grid-template-rows: auto auto;
+    align-content: center;
+  }
+  .days {
+    grid-template-rows: repeat(6, minmax(0, 21cqw));
   }
 }
 

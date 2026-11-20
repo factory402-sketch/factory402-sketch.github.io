@@ -1,10 +1,10 @@
 /* Calendar — offline shell */
-var CACHE = "calendar-v3";
+var CACHE = "calendar-v4";
 var ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=3",
-  "./app.js?v=3",
+  "./styles.css?v=4",
+  "./app.js?v=4",
   "./manifest.webmanifest",
   "./fonts/inter-latin-var.woff2",
   "./icons/icon.svg",
