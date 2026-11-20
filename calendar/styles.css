@@ -315,10 +315,6 @@ body {
 }
 
 @media (orientation: portrait) {
-  .app {
-    grid-template-rows: auto auto;
-    align-content: center;
-  }
   .cal {
     grid-template-rows: auto auto;
     align-content: center;

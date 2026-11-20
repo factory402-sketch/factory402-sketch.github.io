@@ -1,10 +1,10 @@
 /* Calendar — offline shell */
-var CACHE = "calendar-20261120b";
+var CACHE = "calendar-20261120c";
 var ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=20261120b",
-  "./app.js?v=20261120b",
+  "./styles.css?v=20261120c",
+  "./app.js?v=20261120c",
   "./manifest.webmanifest",
   "./fonts/inter-latin-var.woff2",
   "./icons/icon.svg",
