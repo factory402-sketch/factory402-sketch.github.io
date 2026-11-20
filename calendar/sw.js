@@ -1,5 +1,5 @@
 /* Calendar — offline shell */
-var CACHE = "calendar-v10";
+var CACHE = "calendar-v11";
 var ASSETS = [
   "./",
   "./index.html",
