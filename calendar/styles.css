@@ -104,7 +104,7 @@ body {
   font-weight: 600;
   line-height: 1;
   color: var(--red);
-  opacity: 0.14;
+  opacity: 0.2;
   cursor: pointer;
   touch-action: manipulation;
   transition: opacity 0.22s ease;
@@ -122,7 +122,7 @@ body {
 
 @media (hover: none) {
   .arrow {
-    opacity: 0.24;
+    opacity: 0.32;
   }
 }
 
@@ -151,7 +151,7 @@ body {
   grid-template-columns: repeat(7, 1fr);
   padding-bottom: clamp(2px, 0.9vmin, 12px);
   font-size: 2.6vmin; /* fallback */
-  font-size: min(11.3cqh, 8.2cqw);
+  font-size: min(11.3cqh, 8.2cqw, 82px);
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -208,7 +208,7 @@ body {
   color: inherit;
   font: inherit;
   font-size: 6vmin; /* fallback */
-  font-size: min(11.3cqh, 8.2cqw);
+  font-size: min(11.3cqh, 8.2cqw, 82px);
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0;
