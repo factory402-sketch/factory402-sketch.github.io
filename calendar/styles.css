@@ -151,7 +151,7 @@ body {
   grid-template-columns: repeat(7, 1fr);
   padding-bottom: clamp(2px, 0.9vmin, 12px);
   font-size: 2.6vmin; /* fallback */
-  font-size: min(11.3cqh, 9.5cqw);
+  font-size: min(11.3cqh, 8.2cqw);
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -208,7 +208,7 @@ body {
   color: inherit;
   font: inherit;
   font-size: 6vmin; /* fallback */
-  font-size: min(11.3cqh, 9.5cqw);
+  font-size: min(11.3cqh, 8.2cqw);
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0;
@@ -320,7 +320,7 @@ body {
     align-content: center;
   }
   .days {
-    grid-template-rows: repeat(6, minmax(0, 21cqw));
+    grid-template-rows: repeat(6, minmax(0, 22cqw));
   }
 }
 
