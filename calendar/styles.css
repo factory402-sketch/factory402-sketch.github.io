@@ -18,7 +18,7 @@
 
   --pad-y: clamp(16px, 4.4vmin, 54px);
   --pad-x: clamp(18px, 4.6vw, 76px);
-  --title-fs: clamp(20px, 2.6vmin + 14px, 50px);
+  --title-fs: clamp(20px, 3.6vmin + 10px, 46px);
   --gap: clamp(8px, 2.2vmin, 30px);
 }
 
@@ -78,7 +78,7 @@ body {
 .month-nav {
   display: flex;
   align-items: baseline;
-  gap: 0.28em;
+  gap: 0.34em;
   min-width: 0;
 }
 
@@ -245,9 +245,9 @@ body {
 }
 
 .day.is-today .num {
-  font-size: 0.72em;
-  width: 2.2em;
-  height: 2.2em;
+  font-size: 0.62em;
+  width: 2.34em;
+  height: 2.34em;
   display: grid;
   place-items: center;
   border-radius: 50%;
