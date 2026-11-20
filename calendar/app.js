@@ -134,7 +134,7 @@
     var size = h * 1.05;
     ghostNum.style.fontSize = size + "px";
     var textWidth = ghostNum.getBoundingClientRect().width;
-    var maxWidth = w * 1.06;
+    var maxWidth = w * (h > w ? 0.98 : 1.06);
     if (textWidth > maxWidth) {
       ghostNum.style.fontSize = size * (maxWidth / textWidth) + "px";
     }
