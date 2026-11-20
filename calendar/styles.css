@@ -190,7 +190,7 @@ body {
 .ghost span {
   display: block;
   line-height: 1;
-  margin-top: 0.035em;
+  margin-top: 0.075em;
   transform-origin: 50% 50%;
   will-change: transform, opacity;
 }

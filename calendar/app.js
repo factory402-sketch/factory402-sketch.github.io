@@ -131,7 +131,7 @@
     var h = daysEl.clientHeight;
     var w = daysEl.clientWidth;
     if (!h || !w) return;
-    var size = h * 0.965;
+    var size = h * 1.05;
     ghostNum.style.fontSize = size + "px";
     var textWidth = ghostNum.getBoundingClientRect().width;
     var maxWidth = w * 1.06;
