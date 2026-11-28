@@ -3,6 +3,14 @@
   const fields = ['coffee', 'second', 'pourCount', 'bloom', 'interval', 'drain'];
   const recipes = [
     {name:BrewProfiles.ultra.name, values:[...BrewProfiles.ultra.values], profile:'ultra'},
+    {
+      name:'하이플럭스 High Fast 필터',
+      values:[15, 220, 5, 35, 25, 40],
+      amounts:[30, 30, 30, 30, 100],
+      temperatures:[92, 92, 92, 92, 92],
+      memo:'High Fast(155) · 15 g 조금 굵게 · 91–92 ℃ · 플라스틱 드리퍼 · 린싱 60 ml. 30 g씩 4회, 마지막 100 g은 멜로드립이나 교반 적게. 30–40초 뜸 뒤엔 시간 재지 말고 물이 거의 다 빠지면 다음 물. 진하게 30·30·30·30·30·70(6회). 너무 진하면 바이패스 5–15 ml. 산미는 린싱 200 ml까지, 내추럴→코니컬·워시드→플랫바텀.',
+      guide:'5차 100 g을 30 g·70 g으로 나눠 부으면 6회 진하게(30·30·30·30·30·70)가 됩니다. 앱은 5회까지 지원해요. 바이패스는 추출 후 컵에 물을 더하는 방식입니다.'
+    },
     {name:'데일리 핸드드립', values:[20, 300, 5, 40, 30, 45]},
     {name:'가볍게 즐기는 한 잔', values:[15, 255, 3, 40, 35, 45]},
     {name:'조금 더 진한 한 잔', values:[15, 180, 3, 30, 30, 45]},
@@ -105,6 +113,12 @@
         ' · 4회 푸어 · 목표 ' + recipe.finishRange;
       const guide = document.createElement('p');
       guide.textContent = '첫 두 회차는 블루밍 · 워시드 92–94°C / 발효·무산소·내추럴 89–91°C · 물이 5–10 mL 남았을 때 드리퍼 제거 · David Jim (LOT61)';
+      row.append(guide);
+    }
+    if (recipe.guide) {
+      const guide = document.createElement('p');
+      guide.className = 'recipe-guide';
+      guide.textContent = recipe.guide;
       row.append(guide);
     }
     controls.append(button('적용', () => apply(recipe)));
