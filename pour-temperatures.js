@@ -1,6 +1,6 @@
 const PourTemperatures = (() => {
   function normalize(values, count) {
-    if (!Array.isArray(values) || ![2, 3, 4, 5, 10].includes(count)) return [];
+    if (!Array.isArray(values) || ![2, 3, 4, 5, 6, 10].includes(count)) return [];
     const temperatures = Array.from({length: count}, (_, i) => {
       const value = values[i];
       return Number.isFinite(value) && value >= 0 && value <= 100 ? value : null;

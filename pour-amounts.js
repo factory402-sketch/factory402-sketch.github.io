@@ -2,7 +2,7 @@ const PourAmounts = (() => {
   const group = $('pourAmounts');
   const count = $('pourCount');
   function normalize(values, size) {
-    if (!Array.isArray(values) || ![2, 3, 4, 5, 10].includes(size)) return [];
+    if (!Array.isArray(values) || ![2, 3, 4, 5, 6, 10].includes(size)) return [];
     const amounts = Array.from({length: size}, (_, i) => {
       const value = values[i];
       return Number.isFinite(value) && value >= .01 && value <= 100000 &&

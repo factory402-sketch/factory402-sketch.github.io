@@ -9,7 +9,15 @@
       amounts:[30, 30, 30, 30, 100],
       temperatures:[92, 92, 92, 92, 92],
       memo:'High Fast(155) · 15 g 조금 굵게 · 91–92 ℃ · 플라스틱 드리퍼 · 린싱 60 ml. 30 g씩 4회, 마지막 100 g은 멜로드립이나 교반 적게. 30–40초 뜸 뒤엔 시간 재지 말고 물이 거의 다 빠지면 다음 물. 진하게 30·30·30·30·30·70(6회). 너무 진하면 바이패스 5–15 ml. 산미는 린싱 200 ml까지, 내추럴→코니컬·워시드→플랫바텀.',
-      guide:'5차 100 g을 30 g·70 g으로 나눠 부으면 6회 진하게(30·30·30·30·30·70)가 됩니다. 앱은 5회까지 지원해요. 바이패스는 추출 후 컵에 물을 더하는 방식입니다.'
+      guide:'5차 100 g을 30 g·70 g으로 나눠 부으면 6회 진하게(30·30·30·30·30·70)가 됩니다. 바로 아래 「진하게 6회」 레시피를 적용하면 푸어 6회로 그대로 따라갈 수 있어요. 바이패스는 추출 후 컵에 물을 더하는 방식입니다.'
+    },
+    {
+      name:'하이플럭스 High Fast · 진하게 6회',
+      values:[15, 220, 6, 35, 25, 40],
+      amounts:[30, 30, 30, 30, 30, 70],
+      temperatures:[92, 92, 92, 92, 92, 92],
+      memo:'High Fast(155) · 15 g 조금 굵게 · 91–92 ℃ · 플라스틱 드리퍼 · 린싱 60 ml. 진하게 30 g씩 5회, 마지막 70 g(6회). 30–40초 뜸 뒤엔 시간 재지 말고 물이 거의 다 빠지면 다음 물. 마지막 푸어는 멜로드립이나 교반 적게. 너무 진하면 바이패스 5–15 ml. 산미는 린싱 200 ml까지, 내추럴→코니컬·워시드→플랫바텀.',
+      guide:'5회 기본(30·30·30·30·100)에서 30 g을 한 번 더 붓고 마지막을 70 g으로 줄인 진하게 버전입니다. 타이머·원형 다이얼이 6단계로 나옵니다.'
     },
     {name:'데일리 핸드드립', values:[20, 300, 5, 40, 30, 45]},
     {name:'가볍게 즐기는 한 잔', values:[15, 255, 3, 40, 35, 45]},
@@ -31,7 +39,7 @@
     if (!recipe || typeof recipe.name !== 'string' || !recipe.name.trim() || !Array.isArray(recipe.values) || recipe.values.length !== fields.length) return false;
     const [coffee, water, count, bloom, interval, drain] = recipe.values;
     return coffee > 0 && coffee <= 100000 && water >= 1 && water <= 100000 &&
-      recipe.values.every(Number.isFinite) && [2,3,4,5,10].includes(count) &&
+      recipe.values.every(Number.isFinite) && [2,3,4,5,6,10].includes(count) &&
       [bloom, interval].every(n => Number.isInteger(n) && n >= 10 && n <= 120) &&
       Number.isInteger(drain) && drain >= 15 && drain <= 180;
   }

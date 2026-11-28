@@ -73,7 +73,7 @@ if(typeof PourAmounts !== 'undefined'){
     : '원두 : 물  —';
   if(el('pourRatioPreview').textContent!==label)el('pourRatioPreview').textContent=label;
 }
-const valid=resolved!==null&&r!==null&&total>=1&&total<=100000&&[2,3,4,5,10].includes(n)&&Number.isInteger(b)&&b>=10&&b<=120&&Number.isInteger(i)&&i>=10&&i<=120&&Number.isInteger(d)&&d>=15&&d<=180;
+const valid=resolved!==null&&r!==null&&total>=1&&total<=100000&&[2,3,4,5,6,10].includes(n)&&Number.isInteger(b)&&b>=10&&b<=120&&Number.isInteger(i)&&i>=10&&i<=120&&Number.isInteger(d)&&d>=15&&d<=180;
 el('brewError').textContent=valid?'':amountError||'물 총량은 1~100,000g, 뜸·간격은 정수 10~120초, 마지막 대기는 정수 15~180초로 입력해 주세요.';el('start').disabled=!valid;
 showPour(null,null);
 el('recipeRatio').textContent=valid?'원두 '+fmt(c)+' g · 물 '+fmt(total)+' g · 1:'+fmt(total/c):'';
